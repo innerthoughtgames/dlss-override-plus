@@ -1,0 +1,30 @@
+# PyInstaller build artifacts
+build/
+dist/
+*.spec.bak
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+*.code-workspace
+.claude/
+
+# Legacy versions (kept locally, not committed)
+DLSS Override+_v2.0.py
+DLSS Override+_v2.1.py
+
+# Local NVIDIA data (sensitive — contains user paths)
+ApplicationStorage.json
+ApplicationStorage.json.backup
+ApplicationStorage.json.backup.meta
+
+# OS
+Thumbs.db
+.DS_Store
