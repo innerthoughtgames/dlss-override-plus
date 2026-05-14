@@ -161,6 +161,10 @@ LANG = {
         "tip_restart_svc": "Reinicia os serviços da NVIDIA para carregar suas mudanças sem precisar reiniciar o PC. A tela pode piscar 1-2 segundos. Vai pedir UAC — clique Sim.",
         "tip_npi_btn": "Abre uma tela com informações sobre o nvidiaProfileInspector — programa AVANÇADO separado que permite forçar coisas como o multiplicador exato do MFG (3x, 4x, 6x) e o Preset K do DLSS 4. Esse botão só mostra info.",
         "tip_clear_log": "Limpa o histórico de mensagens da área preta abaixo. Útil para começar uma execução nova sem ruído da anterior.",
+        "tip_tutorial": "Abre o tutorial completo (HTML) no seu navegador. O guia está EMBUTIDO no programa — você não precisa de arquivos externos para que funcione.",
+        "tutorial_btn": "📖 Tutorial",
+        "log_tutorial_opened": "Tutorial aberto no navegador",
+        "dlg_tutorial_missing": "Tutorial não encontrado no pacote do programa.",
         "tip_donate_pix": "Copia a chave PIX (Brasil) para você colar no app do seu banco. Doação ajuda a manter o projeto vivo!",
         "tip_donate_bep20": "Copia o endereço da carteira BSC/BEP20 (cripto). Aceita USDT, USDC, BTCB, BUSD na rede Binance Smart Chain. NÃO envie Bitcoin nativo.",
         "tip_donate_paypal": "Abre o PayPal no navegador para fazer uma doação por cartão ou conta PayPal. Aceita cartão sem precisar ter conta PayPal.",
@@ -276,6 +280,10 @@ LANG = {
         "tip_restart_svc": "Restarts NVIDIA services to load your changes without rebooting your PC. Screen may flicker 1-2 seconds. Will ask for UAC — click Yes.",
         "tip_npi_btn": "Opens a screen with info about nvidiaProfileInspector — separate ADVANCED program that lets you force things like exact MFG multiplier (3x, 4x, 6x) and DLSS 4 Preset K. This button only shows info.",
         "tip_clear_log": "Clears the message history from the black area below. Useful to start a fresh run without noise from the previous one.",
+        "tip_tutorial": "Opens the full tutorial (HTML) in your browser. The guide is EMBEDDED in the program — no external files needed.",
+        "tutorial_btn": "📖 Tutorial",
+        "log_tutorial_opened": "Tutorial opened in browser",
+        "dlg_tutorial_missing": "Tutorial not found in program bundle.",
         "tip_donate_pix": "Copies the PIX key (Brazil) so you can paste it in your bank's app. Donations keep the project alive!",
         "tip_donate_bep20": "Copies the BSC/BEP20 wallet address (crypto). Accepts USDT, USDC, BTCB, BUSD on Binance Smart Chain. DO NOT send native Bitcoin.",
         "tip_donate_paypal": "Opens PayPal in your browser to make a donation by card or PayPal account. Accepts card without needing an account.",
@@ -917,6 +925,11 @@ class DLSSOverrideApp(QtWidgets.QMainWindow):
         self.restart_services_button.clicked.connect(self.restart_services_action)
         util.addWidget(self.restart_services_button)
 
+        self.tutorial_button = QtWidgets.QPushButton()
+        self.tutorial_button.setObjectName("tutorialButton")
+        self.tutorial_button.clicked.connect(self.show_tutorial)
+        util.addWidget(self.tutorial_button)
+
         self.npi_button = QtWidgets.QPushButton("Driver-side overrides (NPI)")
         self.npi_button.clicked.connect(self.show_npi_info)
         util.addWidget(self.npi_button)
@@ -1059,6 +1072,8 @@ class DLSSOverrideApp(QtWidgets.QMainWindow):
         self.revert_button.setToolTip(self._t("tip_revert"))
         self.restart_services_button.setText(self._t("restart_svc"))
         self.restart_services_button.setToolTip(self._t("tip_restart_svc"))
+        self.tutorial_button.setText(self._t("tutorial_btn"))
+        self.tutorial_button.setToolTip(self._t("tip_tutorial"))
         self.npi_button.setText(self._t("npi_btn"))
         self.npi_button.setToolTip(self._t("tip_npi_btn"))
         self.clear_log_button.setText(self._t("clear_log"))
@@ -1090,6 +1105,8 @@ class DLSSOverrideApp(QtWidgets.QMainWindow):
         QPushButton#restartServices:hover { background-color: #A34100; }
         QPushButton#npiButton { background-color: #2A7A2A; }
         QPushButton#npiButton:hover { background-color: #1E5C1E; }
+        QPushButton#tutorialButton { background-color: #00ACC1; }
+        QPushButton#tutorialButton:hover { background-color: #00838F; }
         QPushButton#flagButton { background-color: #2d2d30; border: 1px solid #444; padding: 3px 8px;
                                  font-size: 12px; font-weight: 600; }
         QPushButton#flagButton:hover { background-color: #3a3a3e; border-color: #007ACC; }
@@ -1196,6 +1213,21 @@ class DLSSOverrideApp(QtWidgets.QMainWindow):
 
     def show_npi_info(self):
         NPIInfoDialog(self).exec()
+
+    def show_tutorial(self):
+        """Open the bundled standalone HTML tutorial in the user's default browser.
+        The HTML is embedded in the .exe (via PyInstaller datas), so this works
+        even if the user doesn't have any external files alongside the .exe."""
+        html_path = resource_path("COMO_USAR_STANDALONE.html")
+        if not os.path.exists(html_path):
+            QtWidgets.QMessageBox.warning(
+                self, self._t("dlg_error_title"),
+                self._t("dlg_tutorial_missing"))
+            return
+        # Convert Windows path to file:// URL
+        url = "file:///" + html_path.replace(os.sep, "/")
+        webbrowser.open(url)
+        self.log(self._t("log_tutorial_opened"))
 
     def scan_sl_action(self):
         path = self.path_edit.text().strip()
