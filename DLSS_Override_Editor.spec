@@ -9,6 +9,7 @@ a = Analysis(
         ('itg.ico', '.'),
         ('itg.png', '.'),
         ('qr_pix.png', '.'),
+        ('COMO_USAR_STANDALONE.html', '.'),
     ],
     hiddenimports=[],
     hookspath=[],
