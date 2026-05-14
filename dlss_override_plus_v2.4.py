@@ -7,6 +7,23 @@ def resource_path(rel):
     base = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
     return os.path.join(base, rel)
 
+def _detect_nvidia_app_storage_path():
+    """Resolve %LOCALAPPDATA%\\NVIDIA Corporation\\NVIDIA app\\NvBackend\\ApplicationStorage.json
+    in a robust way that works across all Windows configurations:
+    - Standard accounts (C:\\Users\\name)
+    - Domain accounts (custom profile location)
+    - OneDrive-redirected profiles
+    - Non-default Windows install drive
+    - Truncated Microsoft account usernames
+
+    Falls back to expanding ~ if LOCALAPPDATA isn't set (very rare).
+    """
+    local_app = os.environ.get("LOCALAPPDATA")
+    if not local_app or not os.path.isdir(local_app):
+        local_app = os.path.join(os.path.expanduser("~"), "AppData", "Local")
+    return os.path.join(local_app, "NVIDIA Corporation", "NVIDIA app",
+                        "NvBackend", "ApplicationStorage.json")
+
 # ---------------------------------------------------------------------------
 # Schema
 # ---------------------------------------------------------------------------
@@ -816,8 +833,7 @@ class DLSSOverrideApp(QtWidgets.QMainWindow):
         # File path
         path_row = QtWidgets.QHBoxLayout()
         self.path_edit = QtWidgets.QLineEdit()
-        username = getpass.getuser()
-        default_path = fr"C:\Users\{username}\AppData\Local\NVIDIA Corporation\NVIDIA app\NvBackend\ApplicationStorage.json"
+        default_path = _detect_nvidia_app_storage_path()
         self.path_edit.setText(default_path)
         self.path_edit.textChanged.connect(self.update_file_status)
         path_row.addWidget(self.path_edit)
