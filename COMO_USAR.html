@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>DLSS Override+ — Guide</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Segoe UI", system-ui, sans-serif;
+    background: #1a1a1a;
+    color: #e8e8e8;
+    margin: 0;
+    padding: 0;
+    line-height: 1.55;
+  }
+  /* i18n visibility */
+  body[data-lang="pt"] [data-en], body[data-lang="en"] [data-pt] { display: none; }
+  body[data-lang="pt"] [data-pt], body[data-lang="en"] [data-en] { display: inline; }
+  /* block elements need block display */
+  body[data-lang="pt"] [data-pt-block], body[data-lang="en"] [data-en-block] { display: block; }
+  body[data-lang="pt"] [data-en-block], body[data-lang="en"] [data-pt-block] { display: none; }
+
+  .container { max-width: 820px; margin: 0 auto; padding: 32px 24px 80px; }
+  header {
+    display: flex; align-items: center; gap: 18px;
+    padding-bottom: 14px; border-bottom: 2px solid #333; margin-bottom: 28px;
+    position: relative;
+  }
+  header img.logo { width: 64px; height: 64px; }
+  header h1 { margin: 0; font-size: 28px; color: #fff; }
+  header .sub { color: #888; font-size: 14px; margin-top: 4px; }
+  .lang-switcher {
+    position: absolute; top: 0; right: 0;
+    display: flex; gap: 6px;
+  }
+  .lang-btn {
+    background: #2a2a2a; border: 1px solid #444; color: #ddd;
+    padding: 6px 12px; border-radius: 6px; cursor: pointer;
+    font-size: 13px; font-weight: 600; transition: all 0.15s;
+  }
+  .lang-btn:hover { background: #3a3a3a; border-color: #4dabff; }
+  .lang-btn.active {
+    background: #4dabff; color: #000; border-color: #4dabff;
+  }
+  .support-link {
+    position: absolute; top: 38px; right: 0;
+    background: #2a2a2a; color: #ffb86c; padding: 6px 14px;
+    border-radius: 20px; text-decoration: none; font-size: 13px;
+    font-weight: 600; border: 1px solid #444; transition: all 0.2s;
+  }
+  .support-link:hover { background: #ffb86c; color: #000; }
+  h2 {
+    color: #4dabff; margin-top: 36px; font-size: 22px;
+    border-left: 4px solid #4dabff; padding-left: 10px;
+  }
+  h3 { color: #fff; margin-top: 22px; font-size: 17px; }
+  .tldr {
+    background: linear-gradient(90deg, #2c5364, #203a43);
+    border-left: 5px solid #00d4ff; padding: 16px 20px;
+    border-radius: 6px; margin: 18px 0;
+  }
+  .tldr strong { color: #00d4ff; }
+  .step {
+    background: #232323; border: 1px solid #383838;
+    border-radius: 8px; padding: 16px 20px; margin: 14px 0;
+    display: flex; gap: 16px; align-items: flex-start;
+  }
+  .step .num {
+    background: #4dabff; color: #000; font-weight: 700; font-size: 18px;
+    min-width: 38px; height: 38px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .step .body { flex: 1; }
+  .step .body h4 { margin: 0 0 6px 0; color: #fff; font-size: 16px; }
+  .step .body p { margin: 6px 0; color: #ccc; }
+  .button-name {
+    display: inline-block; background: #007ACC; color: white;
+    padding: 2px 10px; border-radius: 4px; font-weight: 600; font-size: 13px;
+  }
+  .button-orange { background: #CA5100; }
+  .button-purple { background: #6B4C9A; }
+  .button-green { background: #2A7A2A; }
+  .warning {
+    background: #3a2c14; border-left: 4px solid #f0ad4e;
+    padding: 12px 16px; border-radius: 4px; margin: 14px 0; color: #f5d9a8;
+  }
+  .danger {
+    background: #3a1414; border-left: 4px solid #d9534f;
+    padding: 12px 16px; border-radius: 4px; margin: 14px 0; color: #f5b5b5;
+  }
+  .info {
+    background: #14243a; border-left: 4px solid #5bc0de;
+    padding: 12px 16px; border-radius: 4px; margin: 14px 0; color: #c5e3f0;
+  }
+  .screenshot {
+    text-align: center; margin: 24px 0; background: #0f0f0f;
+    padding: 16px; border-radius: 8px; border: 1px solid #333;
+  }
+  .screenshot img { max-width: 100%; border: 1px solid #444; border-radius: 4px; }
+  .screenshot .caption { color: #888; font-size: 13px; margin-top: 8px; font-style: italic; }
+  code, kbd {
+    background: #2d2d2d; color: #ffb86c; padding: 2px 6px;
+    border-radius: 3px; font-family: Consolas, monospace; font-size: 13px;
+  }
+  ul li { margin: 4px 0; }
+  details {
+    background: #1f1f1f; border: 1px solid #333;
+    border-radius: 6px; padding: 12px 16px; margin: 10px 0;
+  }
+  details summary { cursor: pointer; color: #4dabff; font-weight: 600; }
+  details[open] summary { margin-bottom: 10px; }
+  .faq-q { color: #fff; font-weight: 600; margin-top: 16px; }
+  .faq-a { color: #bbb; margin: 4px 0 0 12px; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; background: #1f1f1f; }
+  th, td { padding: 8px 12px; border: 1px solid #333; text-align: left; font-size: 14px; }
+  th { background: #2a2a2a; color: #4dabff; }
+  footer {
+    margin-top: 50px; padding-top: 20px; border-top: 1px solid #333;
+    text-align: center; color: #666; font-size: 13px;
+  }
+  /* Donation section */
+  .donate {
+    background: linear-gradient(135deg, #1a2332, #1a1a1a);
+    border: 1px solid #2a4458; border-radius: 10px;
+    padding: 24px; margin: 40px 0 0;
+  }
+  .donate h2 { margin-top: 0; border-left-color: #ffb86c; color: #ffb86c; }
+  .qr-row {
+    display: flex; gap: 16px; align-items: center;
+    background: #1a1a1a; border: 1px solid #333; border-radius: 8px;
+    padding: 14px; margin-bottom: 14px;
+  }
+  .qr-row img { width: 110px; height: 110px; background: white; padding: 4px; border-radius: 4px; flex-shrink: 0; }
+  .qr-row .qr-info { flex: 1; min-width: 0; }
+  .qr-warn {
+    background: #3a1414; border-left: 3px solid #d9534f; color: #f5b5b5;
+    padding: 10px 14px; border-radius: 4px; font-size: 13px; margin-top: 14px;
+  }
+  .addr {
+    background: #0f0f0f; border: 1px solid #2a2a2a; padding: 8px 10px;
+    border-radius: 4px; font-family: Consolas, monospace; font-size: 11px;
+    color: #ffb86c; word-break: break-all; cursor: pointer; user-select: all;
+  }
+  .copy-btn {
+    background: #2a4458; color: #fff; border: none; padding: 5px 10px;
+    border-radius: 4px; cursor: pointer; font-size: 11px; margin-top: 6px;
+  }
+  .copy-btn:hover { background: #ffb86c; color: #000; }
+</style>
+</head>
+<body data-lang="pt">
+<div class="container">
+
+<header>
+  <img src="itg.png" alt="ITG" class="logo">
+  <div>
+    <h1>DLSS Override+</h1>
+    <div class="sub">
+      <span data-pt>Destrava DLSS 4 / Multi-Frame Gen / Transformer em <b>qualquer</b> jogo • by ITG</span>
+      <span data-en>Unlock DLSS 4 / Multi-Frame Gen / Transformer in <b>any</b> game • by ITG</span>
+    </div>
+  </div>
+  <div class="lang-switcher">
+    <button class="lang-btn active" data-set-lang="pt" onclick="setLang('pt')">🇧🇷 PT</button>
+    <button class="lang-btn" data-set-lang="en" onclick="setLang('en')">🇺🇸 EN</button>
+  </div>
+  <a href="#donate" class="support-link" data-pt>☕ Apoiar</a>
+  <a href="#donate" class="support-link" data-en>☕ Support</a>
+</header>
+
+<div class="tldr">
+  <span data-pt><strong>TL;DR (3 passos):</strong><br>
+  1. Abre o app → 2. Clica <b>Processar Arquivo</b> → 3. Clica <b>Reiniciar Serviços NVIDIA</b>. Pronto, todos os jogos com DLSS estão destravados.</span>
+  <span data-en><strong>TL;DR (3 steps):</strong><br>
+  1. Open the app → 2. Click <b>Process File</b> → 3. Click <b>Restart NVIDIA Services</b>. Done — all your DLSS games are unlocked.</span>
+</div>
+
+<h2 data-pt>O que esse app faz?</h2>
+<h2 data-en>What does this app do?</h2>
+
+<p>
+  <span data-pt>A NVIDIA App tem um menu chamado <b>DLSS Override</b> (Frame Generation, Ray Reconstruction, Super Resolution) — mas a maioria dos jogos vem com esses toggles <b>desativados</b> pela NVIDIA. Esse programa edita o arquivo de configuração da NVIDIA App e <b>liga essas opções em todos os jogos da sua biblioteca de uma vez</b>.</span>
+  <span data-en>NVIDIA App has a <b>DLSS Override</b> menu (Frame Generation, Ray Reconstruction, Super Resolution) — but most games come with those toggles <b>disabled</b> by NVIDIA. This program edits NVIDIA App's config file and <b>enables those options in every game in your library at once</b>.</span>
+</p>
+<ul>
+  <li data-pt><b>Funciona em qualquer PC com Windows 10/11 + GPU RTX 20/30/40/50.</b></li>
+  <li data-en><b>Works on any Windows 10/11 PC with an RTX 20/30/40/50 GPU.</b></li>
+  <li data-pt>Não precisa instalar nada além do .exe. Não toca nos arquivos dos jogos.</li>
+  <li data-en>No install needed beyond the .exe. Doesn't touch game files.</li>
+  <li data-pt>Cria backup automático antes de mexer em qualquer coisa.</li>
+  <li data-en>Creates an automatic backup before touching anything.</li>
+  <li data-pt>Suporte bilíngue: clica nas bandeiras 🇧🇷/🇺🇸 no topo do app.</li>
+  <li data-en>Bilingual: click the 🇧🇷/🇺🇸 flags at the top of the app.</li>
+</ul>
+
+<h2 data-pt>Passo a passo (a parte que importa)</h2>
+<h2 data-en>Step by step (the part that matters)</h2>
+
+<div class="screenshot">
+  <img src="screenshot_app.png" alt="DLSS Override+">
+  <div class="caption" data-pt>Tela principal — você vai usar só 2 botões.</div>
+  <div class="caption" data-en>Main screen — you only need 2 buttons.</div>
+</div>
+
+<div class="step">
+  <div class="num">1</div>
+  <div class="body">
+    <h4 data-pt>Abra o <code>DLSS_Override_Editor_v2.4.exe</code></h4>
+    <h4 data-en>Open <code>DLSS_Override_Editor_v2.4.exe</code></h4>
+    <p data-pt>Duplo-clique. Não precisa "Executar como administrador" — só precisa se você quiser ativar o indicador on-screen (opcional, passo 5).</p>
+    <p data-en>Double-click. No need to "Run as administrator" — only required if you want to enable the on-screen indicator (optional, step 5).</p>
+  </div>
+</div>
+
+<div class="step">
+  <div class="num">2</div>
+  <div class="body">
+    <h4 data-pt>Escolha seu idioma (🇧🇷 PT ou 🇺🇸 EN)</h4>
+    <h4 data-en>Pick your language (🇧🇷 PT or 🇺🇸 EN)</h4>
+    <p data-pt>Botões de bandeira no canto superior direito da janela. Troca em tempo real.</p>
+    <p data-en>Flag buttons in the top-right corner of the window. Switches instantly.</p>
+  </div>
+</div>
+
+<div class="step">
+  <div class="num">3</div>
+  <div class="body">
+    <h4 data-pt>Confere as checkboxes (já vêm certas)</h4>
+    <h4 data-en>Check the checkboxes (already set correctly)</h4>
+    <p data-pt><b>Não mexe.</b> O padrão já libera tudo (FG, RR, SR, Modelos, NoOPS, MFG marcados / OPS desmarcado).</p>
+    <p data-en><b>Don't touch.</b> Defaults unlock everything (FG, RR, SR, Models, NoOPS, MFG checked / OPS unchecked).</p>
+  </div>
+</div>
+
+<div class="step">
+  <div class="num">4</div>
+  <div class="body">
+    <h4 data-pt>Clica <span class="button-name">Pré-visualizar</span> (opcional)</h4>
+    <h4 data-en>Click <span class="button-name">Preview</span> (optional)</h4>
+    <p data-pt>Mostra no log quais jogos vão mudar, sem gravar. Útil pra ver se encontrou seus jogos.</p>
+    <p data-en>Shows in the log which games will change, without saving. Useful to confirm it found your games.</p>
+  </div>
+</div>
+
+<div class="step">
+  <div class="num">5</div>
+  <div class="body">
+    <h4 data-pt>Clica <span class="button-name">Processar Arquivo</span> / <span class="button-name">Process File</span></h4>
+    <h4 data-en>Click <span class="button-name">Process File</span></h4>
+    <p data-pt>Botão principal. Cria backup, modifica chaves DLSS de todos os jogos, edita fingerprint.db, e marca como somente leitura.</p>
+    <p data-en>Main button. Creates a backup, modifies DLSS keys for all games, edits fingerprint.db, and sets the file to read-only.</p>
+  </div>
+</div>
+
+<div class="step">
+  <div class="num">6</div>
+  <div class="body">
+    <h4 data-pt>Clica <span class="button-name button-orange">Reiniciar Serviços NVIDIA</span></h4>
+    <h4 data-en>Click <span class="button-name button-orange">Restart NVIDIA Services</span></h4>
+    <p data-pt>Reinicia serviços pra ler o arquivo novo. <b>A tela pode piscar 1-2 segundos.</b> Vai pedir UAC — clica Sim.</p>
+    <p data-en>Restarts services to load the new file. <b>Screen may flicker 1-2 seconds.</b> UAC prompt — click Yes.</p>
+  </div>
+</div>
+
+<div class="step">
+  <div class="num">7</div>
+  <div class="body">
+    <h4 data-pt>Pronto. Abre o jogo e liga o DLSS.</h4>
+    <h4 data-en>Done. Open the game and turn DLSS on.</h4>
+    <p data-pt>Todas as opções DLSS vão aparecer no menu de gráficos do jogo, mesmo se "oficialmente não suporta".</p>
+    <p data-en>All DLSS options will show up in the game's graphics menu, even if it "officially doesn't support" them.</p>
+  </div>
+</div>
+
+<h2 data-pt>⚠️ IMPORTANTE: Quando instalar um jogo novo</h2>
+<h2 data-en>⚠️ IMPORTANT: When installing a new game</h2>
+
+<div class="warning">
+  <span data-pt><b>Se instalar um jogo NOVO depois de rodar esse app, precisa rodar de novo.</b><br><br>
+  Por quê? O app trava o arquivo da NVIDIA em <b>somente leitura</b>. Isso impede a NVIDIA App de reverter — <i>mas</i> também impede ela de detectar o jogo novo.<br><br>
+  <b>Solução simples:</b>
+  <ol style="margin: 8px 0;">
+  <li>Clica <span class="button-name button-purple">Destravar (Writable)</span></li>
+  <li>Abre a NVIDIA App e deixa detectar o jogo novo</li>
+  <li>Volta no DLSS Override+, clica <span class="button-name">Processar Arquivo</span></li>
+  <li>Clica <span class="button-name button-orange">Reiniciar Serviços NVIDIA</span></li>
+  </ol></span>
+  <span data-en><b>If you install a NEW game after running this app, you need to run it again.</b><br><br>
+  Why? The app locks the NVIDIA file as <b>read-only</b>. This stops NVIDIA App from reverting your changes — <i>but</i> also stops it from detecting the new game.<br><br>
+  <b>Simple fix:</b>
+  <ol style="margin: 8px 0;">
+  <li>Click <span class="button-name button-purple">Make Writable</span></li>
+  <li>Open NVIDIA App and let it detect the new game</li>
+  <li>Back in DLSS Override+, click <span class="button-name">Process File</span></li>
+  <li>Click <span class="button-name button-orange">Restart NVIDIA Services</span></li>
+  </ol></span>
+</div>
+
+<h2 data-pt>Outros botões (provavelmente não vai usar)</h2>
+<h2 data-en>Other buttons (you probably won't use these)</h2>
+
+<details>
+<summary><span data-pt><span class="button-name button-purple">Travar / Destravar</span> — Trava/destrava o arquivo</span><span data-en><span class="button-name button-purple">Make Read-Only / Writable</span> — Lock/unlock the file</span></summary>
+<p data-pt>Liga/desliga a proteção "somente leitura". Use quando quiser deixar NVIDIA App detectar jogos novos.</p>
+<p data-en>Toggles "read-only" protection. Use when you want NVIDIA App to detect new games.</p>
+</details>
+
+<details>
+<summary><span data-pt><span class="button-name">Reverter do Backup</span> — Desfazer tudo</span><span data-en><span class="button-name">Revert to Backup</span> — Undo everything</span></summary>
+<p data-pt>Restaura o arquivo do backup. Use se algo der errado.</p>
+<p data-en>Restores the file from backup. Use if anything goes wrong.</p>
+</details>
+
+<details>
+<summary><span data-pt><span class="button-name button-green">Overrides do driver (NPI)</span> — Só info</span><span data-en><span class="button-name button-green">Driver-side overrides (NPI)</span> — Info only</span></summary>
+<p data-pt>Mostra os hex IDs do nvidiaProfileInspector para controles avançados (MFG multiplier, Preset K, DLAA). É opcional, usa só se quiser controle hardcore.</p>
+<p data-en>Shows nvidiaProfileInspector hex IDs for advanced controls (MFG multiplier, Preset K, DLAA). Optional — only if you want hardcore control.</p>
+</details>
+
+<details>
+<summary><span data-pt><b>Atualizar Streamline SDK</b> — Avançado, deixe desmarcado</span><span data-en><b>Update Streamline SDK</b> — Advanced, leave unchecked</span></summary>
+<p data-pt>Cada jogo tem uma versão DLSS runtime pinada. O app preenche automaticamente a maior versão que existe no seu arquivo. Mexa só se souber.</p>
+<p data-en>Each game has a pinned DLSS runtime version. The app auto-fills with the highest version present in your file. Only change if you know what you're doing.</p>
+</details>
+
+<h2>🎮 Star Citizen — DLSS 4.5</h2>
+
+<div class="info">
+  <span data-pt><b>Cenário atual:</b> A meta em 2026 é DLSS 4.5. Testes profundos da comunidade no Reddit/Spectrum.</span>
+  <span data-en><b>Current meta:</b> 2026's meta is DLSS 4.5. Based on deep community testing on Reddit/Spectrum.</span>
+</div>
+
+<h3 data-pt>Com .dll DLSS 4.5 (mais novas)</h3>
+<h3 data-en>With DLSS 4.5 .dlls (newer)</h3>
+<table>
+<tr>
+  <th data-pt>Cenário</th><th data-en>Scenario</th>
+  <th>Preset</th>
+  <th data-pt>Quando usar</th><th data-en>When to use</th>
+</tr>
+<tr>
+  <td data-pt>DLAA (qualidade máxima nativa)</td><td data-en>DLAA (max native quality)</td>
+  <td><b>K</b></td>
+  <td data-pt>RTX 4080 / 4090 — anti-aliasing perfeito</td><td data-en>RTX 4080 / 4090 — perfect anti-aliasing</td>
+</tr>
+<tr>
+  <td data-pt>DLSS Quality / Performance</td><td data-en>DLSS Quality / Performance</td>
+  <td><b>M</b></td>
+  <td data-pt>Quando precisa de FPS — corrige shimmering</td><td data-en>When you need FPS — fixes shimmering</td>
+</tr>
+</table>
+
+<h3 data-pt>Com .dll antigas (3.7/3.8)</h3>
+<h3 data-en>With older .dlls (3.7/3.8)</h3>
+<table>
+<tr>
+  <th data-pt>Cenário</th><th data-en>Scenario</th>
+  <th>Preset</th>
+  <th data-pt>Observação</th><th data-en>Note</th>
+</tr>
+<tr>
+  <td>Upscaling</td>
+  <td><b>E</b></td>
+  <td data-pt>Padrão ouro antigo — clareza em movimento</td><td data-en>Old gold standard — clarity in motion</td>
+</tr>
+<tr>
+  <td>DLAA</td>
+  <td><b>C</b></td>
+  <td data-pt>Menor ghosting absoluto</td><td data-en>Lowest absolute ghosting</td>
+</tr>
+</table>
+
+<h3>dlsstweaks.ini</h3>
+<pre style="background: #0f0f0f; padding: 14px; border-radius: 6px; overflow-x: auto; color: #c8e1f5; font-size: 13px;">
+[DLSS]
+ForceDLAA = true
+OverrideAutoMultiple = true
+OverrideAppId = true
+
+[DLSSPresets]
+DLAA = K
+Quality = M
+Performance = M
+</pre>
+
+<h3 data-pt>Configurações in-game</h3>
+<h3 data-en>In-game settings</h3>
+<ul>
+<li data-pt>⚙️ <b>Upscale Tech:</b> Transformer (não use "Legacy")</li>
+<li data-en>⚙️ <b>Upscale Tech:</b> Transformer (don't use "Legacy")</li>
+<li data-pt>⚙️ <b>Smooth Motion:</b> ON — salva nas cidades de pouso (precisa de HAGS ativo)</li>
+<li data-en>⚙️ <b>Smooth Motion:</b> ON — saves frames in landing cities (HAGS must be on)</li>
+<li data-pt>⚙️ <b>V-Sync:</b> OFF — +30 FPS deixando G-Sync do monitor agir</li>
+<li data-en>⚙️ <b>V-Sync:</b> OFF — +30 FPS by letting monitor G-Sync handle it</li>
+</ul>
+
+<h2>FAQ</h2>
+
+<div class="faq-q" data-pt>É seguro? Pode banir minha conta?</div>
+<div class="faq-q" data-en>Is it safe? Could it ban my account?</div>
+<div class="faq-a" data-pt>Não. Só edita arquivos de config da NVIDIA App, no seu PC. Não toca em jogos, não injeta em processo, não é detectável por anti-cheat.</div>
+<div class="faq-a" data-en>No. It only edits NVIDIA App config files on your PC. Doesn't touch games, doesn't inject into processes, not detectable by anti-cheat.</div>
+
+<div class="faq-q" data-pt>Funciona com qualquer GPU?</div>
+<div class="faq-q" data-en>Works with any GPU?</div>
+<div class="faq-a" data-pt>Qualquer RTX (20/30/40/50). Mas algumas features são limitadas por hardware: MFG 3x/4x/6x requer RTX 50. DLSS-FG 2x requer RTX 40+. SR + RR funcionam em todas.</div>
+<div class="faq-a" data-en>Any RTX (20/30/40/50). But some features are hardware-locked: MFG 3x/4x/6x needs RTX 50. DLSS-FG 2x needs RTX 40+. SR + RR work on all.</div>
+
+<div class="faq-q" data-pt>Roda toda vez que liga o PC?</div>
+<div class="faq-q" data-en>Do I run it every time I boot?</div>
+<div class="faq-a" data-pt>Não. Roda uma vez, fica. Só roda de novo se instalou jogo novo ou se NVIDIA App atualizou.</div>
+<div class="faq-a" data-en>No. Run once, it sticks. Only run again if you install a new game or NVIDIA App updates.</div>
+
+<div class="faq-q" data-pt>Antivírus reclamou do .exe</div>
+<div class="faq-q" data-en>Antivirus flagged the .exe</div>
+<div class="faq-a" data-pt>Falso positivo comum em Python compilado com PyInstaller. Código fonte está disponível.</div>
+<div class="faq-a" data-en>Common false positive with PyInstaller-compiled Python. Source code is available.</div>
+
+<h2 data-pt>Troubleshooting</h2>
+<h2 data-en>Troubleshooting</h2>
+
+<div class="danger">
+  <span data-pt><b>Deu errado e o NVIDIA App tá esquisito.</b><br>
+  1. Abre DLSS Override+<br>
+  2. Clica <span class="button-name button-purple">Destravar</span><br>
+  3. Clica <span class="button-name">Reverter do Backup</span><br>
+  4. Reinicia o PC<br>
+  Volta tudo ao original.</span>
+  <span data-en><b>Something broke and NVIDIA App acts weird.</b><br>
+  1. Open DLSS Override+<br>
+  2. Click <span class="button-name button-purple">Make Writable</span><br>
+  3. Click <span class="button-name">Revert to Backup</span><br>
+  4. Reboot<br>
+  Everything goes back to original.</span>
+</div>
+
+<section id="donate" class="donate">
+  <h2 data-pt>☕ Curtiu? Apoie</h2>
+  <h2 data-en>☕ Liked it? Support</h2>
+  <p>
+    <span data-pt>Esse programa é <b>gratuito</b> e vai continuar sendo. Se ajudou e quiser apoiar, qualquer valor ajuda — de um café até um SSD novo. Obrigado! 🙏</span>
+    <span data-en>This program is <b>free</b> and will stay free. If it helped and you want to support it, any amount helps — from a coffee to a new SSD. Thank you! 🙏</span>
+  </p>
+
+  <h3 style="color:#ffb86c; margin-top: 4px;">💎 Crypto — BNB Smart Chain (BEP20)</h3>
+  <div class="qr-row">
+    <img src="qr_bep20.png" alt="QR BEP20">
+    <div class="qr-info">
+      <h4 style="margin: 0 0 6px 0; color: #fff;" data-pt>Mesma carteira para USDT e BTCB/WBTC</h4>
+      <h4 style="margin: 0 0 6px 0; color: #fff;" data-en>Same wallet for USDT and BTCB/WBTC</h4>
+      <div style="color:#888; font-size:12px; margin-bottom:8px;" data-pt>Aceita qualquer token BEP20 (USDT, USDC, BTCB, BUSD, etc.)</div>
+      <div style="color:#888; font-size:12px; margin-bottom:8px;" data-en>Accepts any BEP20 token (USDT, USDC, BTCB, BUSD, etc.)</div>
+      <div class="addr" onclick="navigator.clipboard.writeText('0x724ec14cbfabdf7bb07653bd73298ca1a4730ffb'); copyFeedback(this.nextElementSibling)">0x724ec14cbfabdf7bb07653bd73298ca1a4730ffb</div>
+      <button class="copy-btn" onclick="navigator.clipboard.writeText('0x724ec14cbfabdf7bb07653bd73298ca1a4730ffb'); copyFeedback(this)">
+        <span data-pt>Copiar endereço</span><span data-en>Copy address</span>
+      </button>
+    </div>
+  </div>
+  <div class="qr-warn">
+    <span data-pt>⚠️ <b>ATENÇÃO:</b> Só aceita rede <b>BSC/BEP20</b>. Não envie Bitcoin nativo — o dinheiro será perdido.</span>
+    <span data-en>⚠️ <b>WARNING:</b> Only accepts <b>BSC/BEP20</b> network. Don't send native Bitcoin — funds will be lost.</span>
+  </div>
+
+  <h3 style="color:#ffb86c; margin-top: 24px;">💸 PayPal</h3>
+  <div class="qr-row">
+    <img src="qr_paypal.png" alt="QR PayPal">
+    <div class="qr-info">
+      <h4 style="margin: 0 0 6px 0; color: #fff;" data-pt>Cartão de crédito ou conta PayPal</h4>
+      <h4 style="margin: 0 0 6px 0; color: #fff;" data-en>Credit card or PayPal account</h4>
+      <div style="color:#888; font-size:12px;" data-pt>Aceita cartão sem precisar ter conta PayPal</div>
+      <div style="color:#888; font-size:12px;" data-en>Accepts card without needing a PayPal account</div>
+      <form action="https://www.paypal.com/donate" method="post" target="_blank" style="margin: 8px 0 0;">
+        <input type="hidden" name="business" value="47E2WRE9G99U2" />
+        <input type="hidden" name="currency_code" value="BRL" />
+        <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="Donate with PayPal" style="border-radius: 4px;" />
+      </form>
+    </div>
+  </div>
+
+  <h3 style="color:#ffb86c; margin-top: 24px;">🇧🇷 PIX</h3>
+  <div class="qr-row">
+    <img src="qr_pix.png" alt="QR PIX">
+    <div class="qr-info">
+      <h4 style="margin: 0 0 6px 0; color: #fff;" data-pt>Escaneie no app do seu banco</h4>
+      <h4 style="margin: 0 0 6px 0; color: #fff;" data-en>Scan with your bank's app</h4>
+      <div style="color:#888; font-size:12px;" data-pt>Ou copie a chave aleatória abaixo</div>
+      <div style="color:#888; font-size:12px;" data-en>Or copy the random key below</div>
+      <div class="addr" onclick="navigator.clipboard.writeText('8cd6bf4a-6288-4535-a5fd-78dce11e3568'); copyFeedback(this.nextElementSibling)">8cd6bf4a-6288-4535-a5fd-78dce11e3568</div>
+      <button class="copy-btn" onclick="navigator.clipboard.writeText('8cd6bf4a-6288-4535-a5fd-78dce11e3568'); copyFeedback(this)">
+        <span data-pt>Copiar chave PIX</span><span data-en>Copy PIX key</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  ITG • DLSS Override+ v2.4 • NVIDIA App 11.0.7.x<br>
+  <span data-pt>Em caso de dúvida, peça print do log pra quem te mandou o programa.</span>
+  <span data-en>If in doubt, send a screenshot of the log to whoever shared the program.</span>
+</footer>
+
+</div>
+
+<script>
+function setLang(lang) {
+  document.body.setAttribute('data-lang', lang);
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.setLang === lang);
+  });
+  try { localStorage.setItem('dlss_override_lang', lang); } catch(e) {}
+}
+
+function copyFeedback(btn) {
+  const original = btn.innerHTML;
+  btn.innerHTML = '✓';
+  btn.style.background = '#32BC9B';
+  btn.style.color = '#fff';
+  setTimeout(() => {
+    btn.innerHTML = original;
+    btn.style.background = '';
+    btn.style.color = '';
+  }, 1500);
+}
+
+// Restore preferred language from localStorage
+(function() {
+  try {
+    const saved = localStorage.getItem('dlss_override_lang');
+    if (saved === 'en' || saved === 'pt') setLang(saved);
+  } catch(e) {}
+})();
+</script>
+</body>
+</html>
