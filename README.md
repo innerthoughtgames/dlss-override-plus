@@ -166,11 +166,30 @@ No. Run it once, it sticks. Only re-run when:
 </details>
 
 <details>
-<summary><b>Antivirus flagged the .exe</b></summary>
+<summary><b>Antivirus flagged the .exe — is it safe?</b></summary>
 
-Common false positive with PyInstaller-bundled Python. The source code is fully visible in this
-repo — you can run it directly from `python "DLSS Override+.py"` if you prefer (requires
-`PyQt6`). Alternatively, build your own .exe (instructions below).
+**Yes, it's safe.** The flag is a false positive common to PyInstaller-bundled Python programs.
+What it actually does is described above (and in the open source code in this repo).
+
+**Why does this happen?**
+
+1. **PyInstaller bootloader** — malware authors often use PyInstaller too, so antivirus vendors
+   train their classifiers to be suspicious of any PyInstaller binary.
+2. **No code signing certificate** — buying one costs $80-500/year. For an open-source tool
+   with donations as the only revenue, that's not currently viable. Until a cert is purchased,
+   Windows will show "Unknown publisher".
+3. **SmartScreen reputation** — Windows trusts binaries with download history. A brand new
+   release has zero reputation, so SmartScreen blocks it as "unrecognized".
+
+**What you can do:**
+
+- **Verify on VirusTotal** before running — upload the `.exe` and check the scan results
+  yourself at https://www.virustotal.com/. The source code is also in this repo for anyone
+  to audit.
+- **Run from source** — clone the repo and run `python dlss_override_plus_v2.5.py` (requires
+  Python 3.10+ and `pip install PyQt6 qrcode[pil]`). This skips PyInstaller entirely.
+- **Build your own .exe** — instructions below in the "Building from source" section.
+- **Add an exception** in Windows Defender if you trust the scan.
 
 </details>
 

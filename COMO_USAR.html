@@ -411,10 +411,10 @@ Performance = M
 <div class="faq-a" data-pt>Não. Roda uma vez, fica. Só roda de novo se instalou jogo novo ou se NVIDIA App atualizou.</div>
 <div class="faq-a" data-en>No. Run once, it sticks. Only run again if you install a new game or NVIDIA App updates.</div>
 
-<div class="faq-q" data-pt>Antivírus reclamou do .exe</div>
-<div class="faq-q" data-en>Antivirus flagged the .exe</div>
-<div class="faq-a" data-pt>Falso positivo comum em Python compilado com PyInstaller. Código fonte está disponível.</div>
-<div class="faq-a" data-en>Common false positive with PyInstaller-compiled Python. Source code is available.</div>
+<div class="faq-q" data-pt>Antivírus reclamou do .exe — é seguro?</div>
+<div class="faq-q" data-en>Antivirus flagged the .exe — is it safe?</div>
+<div class="faq-a" data-pt><b>Sim, é seguro.</b> É falso positivo comum em Python compilado com PyInstaller. Razões: (1) hackers também usam PyInstaller, então antivírus desconfiam; (2) o .exe não está assinado com certificado de signing (custaria $80-500/ano); (3) Windows SmartScreen bloqueia qualquer .exe sem histórico de downloads. Você pode: verificar no <a href="https://www.virustotal.com/" style="color:#4dabff" target="_blank">VirusTotal</a>, rodar direto do código fonte (requer Python + PyQt6), ou adicionar exceção no Windows Defender.</div>
+<div class="faq-a" data-en><b>Yes, it's safe.</b> Common false positive with PyInstaller-bundled Python. Reasons: (1) malware authors use PyInstaller too, so antivirus is trained to be suspicious; (2) the .exe isn't code-signed (a cert costs $80-500/year); (3) Windows SmartScreen blocks any .exe with no download history. You can: verify on <a href="https://www.virustotal.com/" style="color:#4dabff" target="_blank">VirusTotal</a>, run from source (requires Python + PyQt6), or add an exception in Windows Defender.</div>
 
 <h2 data-pt>Troubleshooting</h2>
 <h2 data-en>Troubleshooting</h2>
