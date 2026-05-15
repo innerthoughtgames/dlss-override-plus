@@ -63,9 +63,16 @@ FINGERPRINT_XML_KEYS = [
     "DLSS_Override_No_OPS",
 ]
 
-# Latest known good Streamline SDK version. DLSS 4 MFG starts ~2.7.10,
-# DLSS 4.5 with 6x MFG / 2nd-gen transformer needs 2.7.32+.
-DEFAULT_LATEST_SL_VERSION = "2.7.32"
+# Latest known Streamline SDK versions (as of May 2026, verified via
+# github.com/NVIDIA-RTX/Streamline/releases):
+#   2.7.x   - DLSS 4 base (Presets A-K)
+#   2.10.0+ - DLSS 4.5 base (adds Presets L and M, 2nd-gen Transformer)
+#   2.11.0  - VSync with Frame Generation + UI Recomposition
+#   2.11.1+ - Dynamic MFG, MFG 6X mode (RTX 50 exclusive)
+# The NVIDIA App ships Streamline DLLs in C:\ProgramData\NVIDIA\NGX\models\sl_*
+# and pins a version PER GAME in ApplicationStorage.json. Bumping the pin only
+# selects which already-installed DLL is loaded — it does NOT download newer ones.
+DEFAULT_LATEST_SL_VERSION = "2.11.1"
 
 # NVIDIA App services in dependency order (stop reverse, start forward).
 NVIDIA_SERVICES = [
@@ -93,6 +100,136 @@ NPI_RELEASES_URL = "https://github.com/Orbmu2k/nvidiaProfileInspector/releases"
 DONATE_PIX_KEY = "8cd6bf4a-6288-4535-a5fd-78dce11e3568"
 DONATE_BEP20_ADDR = "0x724ec14cbfabdf7bb07653bd73298ca1a4730ffb"
 DONATE_PAYPAL_URL = "https://www.paypal.com/donate/?business=47E2WRE9G99U2&currency_code=BRL"
+
+# RTSS (RivaTuner Statistics Server) — used to fix NVIDIA Smooth Motion black-screen
+# in Star Citizen via Microsoft Detours API hooking. The default RTSS hook conflicts
+# with NVIDIA's nvpresent64.dll; switching to Detours fixes the conflict.
+RTSS_CANDIDATE_PATHS = [
+    r"C:\Program Files (x86)\RivaTuner Statistics Server",
+    r"C:\Program Files\RivaTuner Statistics Server",
+]
+RTSS_DOWNLOAD_URL = "https://www.guru3d.com/download/rtss-rivatuner-statistics-server-download/"
+RTSS_SC_PROFILE_NAME = "StarCitizen.exe.cfg"
+
+# Minimal profile content with UseDetours=1 enabled. Written when no profile exists.
+RTSS_SC_PROFILE_TEMPLATE = """[Framerate]
+Limit=0
+LimitDenominator=1
+PassiveWait=1
+ReflexSleep=0
+ReflexSetLatencyMarker=1
+[Hooking]
+EnableHooking=1
+HookDirect3D8=1
+HookDirect3D9=1
+HookDXGI=1
+HookDirect3D12=1
+HookOpenGL=1
+HookVulkan=1
+InjectionDelay=15000
+UseDetours=1
+[RendererDirect3D8]
+Implementation=2
+[RendererDirect3D9]
+Implementation=2
+[RendererDirect3D10]
+Implementation=2
+[RendererDirect3D11]
+Implementation=2
+[RendererDirect3D12]
+Implementation=2
+[RendererOpenGL]
+Implementation=2
+[RendererVulkan]
+Implementation=2
+"""
+
+def find_rtss_install():
+    """Return the path to RTSS install dir, or None if not installed."""
+    for p in RTSS_CANDIDATE_PATHS:
+        if os.path.isdir(p) and os.path.isfile(os.path.join(p, "RTSS.exe")):
+            return p
+    return None
+
+def configure_rtss_for_sc(log_func):
+    """Create or update the Star Citizen RTSS profile with UseDetours=1.
+    Returns (success: bool, message_key: str, extra: str)."""
+    install = find_rtss_install()
+    if not install:
+        return (False, "rtss_not_found", "")
+
+    profiles_dir = os.path.join(install, "Profiles")
+    if not os.path.isdir(profiles_dir):
+        try:
+            os.makedirs(profiles_dir, exist_ok=True)
+        except Exception as e:
+            return (False, "rtss_profile_dir_fail", str(e))
+
+    profile_path = os.path.join(profiles_dir, RTSS_SC_PROFILE_NAME)
+
+    if not os.path.exists(profile_path):
+        # Fresh profile — write the template
+        try:
+            with open(profile_path, "w", encoding="utf-8") as f:
+                f.write(RTSS_SC_PROFILE_TEMPLATE)
+            log_func(f"  Created profile: {profile_path}")
+            return (True, "rtss_profile_created", profile_path)
+        except Exception as e:
+            return (False, "rtss_write_fail", str(e))
+
+    # Profile exists — ensure UseDetours=1 in the [Hooking] section
+    try:
+        with open(profile_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        if re.search(r"^\s*UseDetours\s*=\s*1\s*$", content, re.MULTILINE):
+            return (True, "rtss_already_configured", profile_path)
+
+        if re.search(r"^\s*UseDetours\s*=", content, re.MULTILINE):
+            content = re.sub(r"^\s*UseDetours\s*=.*$", "UseDetours=1", content,
+                             count=1, flags=re.MULTILINE)
+        elif "[Hooking]" in content:
+            content = content.replace("[Hooking]", "[Hooking]\nUseDetours=1", 1)
+        else:
+            content = content.rstrip() + "\n[Hooking]\nUseDetours=1\n"
+
+        with open(profile_path, "w", encoding="utf-8") as f:
+            f.write(content)
+        log_func(f"  Updated profile: {profile_path}")
+        return (True, "rtss_profile_updated", profile_path)
+    except Exception as e:
+        return (False, "rtss_write_fail", str(e))
+
+def is_rtss_running():
+    """Check if RTSS.exe is currently running."""
+    try:
+        result = subprocess.run(
+            ["tasklist", "/FI", "IMAGENAME eq RTSS.exe", "/NH"],
+            capture_output=True, text=True, timeout=5,
+            creationflags=subprocess.CREATE_NO_WINDOW)
+        return "RTSS.exe" in result.stdout
+    except Exception:
+        return False
+
+def restart_rtss(log_func):
+    """Restart RTSS so it picks up the new profile. Returns True on success."""
+    install = find_rtss_install()
+    if not install:
+        return False
+    rtss_exe = os.path.join(install, "RTSS.exe")
+    try:
+        # Stop running instance (silent — RTSS may not be running)
+        subprocess.run(["taskkill", "/F", "/IM", "RTSS.exe"],
+                       capture_output=True, timeout=5,
+                       creationflags=subprocess.CREATE_NO_WINDOW)
+        # Restart (detached so we don't block the GUI)
+        subprocess.Popen([rtss_exe], creationflags=subprocess.CREATE_NO_WINDOW,
+                         close_fds=True)
+        log_func("  RTSS restarted")
+        return True
+    except Exception as e:
+        log_func(f"  RTSS restart failed: {e}")
+        return False
 
 # ---------------------------------------------------------------------------
 # i18n
@@ -148,7 +285,7 @@ LANG = {
         "tip_MFG": "Libera 'Multi-Frame Generation' — gera múltiplos quadros extras (3x, 4x, 6x). Recurso principal da série RTX 50. Em RTX 40, fica limitado a 2x.",
         "tip_OPS": "Faz o programa MENTIR para a NVIDIA App, dizendo que todos os jogos têm perfil oficial. PODE REVERTER sozinho. Deixe desativado a menos que algum jogo específico esteja com toggles travados.",
         "tip_sl_cb": "Atualiza a versão da biblioteca DLSS pinada para cada jogo. Versões mais novas destravam mais recursos. RISCO: se a NVIDIA App não tem a versão instalada, pode quebrar o DLSS. Em caso de dúvida, deixe desmarcado.",
-        "tip_sl_edit": "Mostra a maior versão da DLSS runtime já presente no SEU arquivo (o programa detecta automaticamente). NÃO é a versão mais nova existente — é a mais nova que VOCÊ tem instalada. NVIDIA App gerencia isso sozinha, atualizando conforme baixa jogos novos. Mexa só se souber o que faz.",
+        "tip_sl_edit": "Mostra a maior versão da DLSS runtime (Streamline SDK) já presente no SEU arquivo. Auto-detectada. Versões conhecidas: 2.7.x = DLSS 4, 2.10.0+ = DLSS 4.5 (Presets L/M), 2.11.x = Dynamic MFG + MFG 6X. A NVIDIA App pina uma versão POR JOGO; bumpar aqui só seleciona qual DLL já instalada será usada, NÃO baixa versões novas. Em maio 2026 a versão mais recente é 2.11.1.",
         "tip_sl_scan": "Lê o seu arquivo e preenche o campo com a maior versão DLSS já presente. Sempre seguro usar esse valor.",
         "tip_patch_fp": "Edita um segundo arquivo da NVIDIA que controla como JOGOS NOVOS detectados começam. Sem isso, jogos novos virão com DLSS travado de novo. Mantenha ativo.",
         "tip_readonly_cb": "No fim do processo, marca o arquivo como 'somente leitura' para a NVIDIA App não desfazer suas mudanças. Importante: se for instalar jogo novo depois, precisa desmarcar primeiro (botão 'Destravar').",
@@ -165,6 +302,23 @@ LANG = {
         "tutorial_btn": "📖 Tutorial",
         "log_tutorial_opened": "Tutorial aberto no navegador",
         "dlg_tutorial_missing": "Tutorial não encontrado no pacote do programa.",
+        # RTSS auto-config (Smooth Motion fix for Star Citizen)
+        "rtss_btn": "🎮 Smooth Motion (SC)",
+        "tip_rtss_btn": "Configura o RTSS (RivaTuner) para evitar tela preta no Star Citizen quando você usar Smooth Motion. Ativa a opção 'Microsoft Detours API hooking' automaticamente. Precisa do RTSS instalado (programa separado, gratuito).",
+        "rtss_dlg_title": "Configurar Smooth Motion (Star Citizen)",
+        "rtss_dlg_confirm": "Isso vai criar/editar o profile do RTSS para o StarCitizen.exe com 'Microsoft Detours' ativo, fix necessário para Smooth Motion não dar tela preta.\n\nContinuar?",
+        "rtss_not_found_msg": "RTSS (RivaTuner Statistics Server) não está instalado.\n\nInstale gratuitamente em:\nhttps://www.guru3d.com/download/rtss-rivatuner-statistics-server-download/\n\nAbrir o link agora?",
+        "rtss_already_configured_msg": "✅ Profile do Star Citizen já está configurado corretamente.\nNada a fazer.\n\nPath: {p}",
+        "rtss_profile_created_msg": "✅ Profile do Star Citizen criado com sucesso.\n\nPath: {p}\n\nReiniciar o RTSS agora para aplicar?",
+        "rtss_profile_updated_msg": "✅ Profile do Star Citizen atualizado (Detours ativo).\n\nPath: {p}\n\nReiniciar o RTSS agora para aplicar?",
+        "rtss_write_fail_msg": "❌ Falha ao escrever profile do RTSS:\n{e}\n\nTente executar como Administrador.",
+        "rtss_profile_dir_fail_msg": "❌ Falha ao criar pasta de profiles do RTSS:\n{e}",
+        "log_rtss_starting": "Iniciando configuração do RTSS para Star Citizen...",
+        "log_rtss_install_found": "RTSS encontrado em: {p}",
+        "log_rtss_no_install": "RTSS não está instalado",
+        "log_rtss_done": "Configuração do RTSS concluída",
+        "log_rtss_running": "RTSS está rodando — restart recomendado",
+        "log_rtss_not_running": "RTSS não está rodando — abra ele manualmente para o fix funcionar",
         "tip_donate_pix": "Copia a chave PIX (Brasil) para você colar no app do seu banco. Doação ajuda a manter o projeto vivo!",
         "tip_donate_bep20": "Copia o endereço da carteira BSC/BEP20 (cripto). Aceita USDT, USDC, BTCB, BUSD na rede Binance Smart Chain. NÃO envie Bitcoin nativo.",
         "tip_donate_paypal": "Abre o PayPal no navegador para fazer uma doação por cartão ou conta PayPal. Aceita cartão sem precisar ter conta PayPal.",
@@ -267,7 +421,7 @@ LANG = {
         "tip_MFG": "Unlocks 'Multi-Frame Generation' — creates multiple extra frames (3x, 4x, 6x). The flagship RTX 50 feature. On RTX 40 it caps at 2x.",
         "tip_OPS": "Makes the program LIE to NVIDIA App, claiming every game has an official profile. CAN REVERT itself. Leave off unless a specific game has its toggles locked.",
         "tip_sl_cb": "Updates the pinned DLSS library version for each game. Newer versions unlock more features. RISK: if NVIDIA App doesn't have that version installed, it can break DLSS. When in doubt, leave unchecked.",
-        "tip_sl_edit": "Shows the highest DLSS runtime version present in YOUR file (auto-detected). This is NOT the newest version that exists — it's the newest version YOU have installed. NVIDIA App manages this on its own, updating as it downloads new games. Only change if you know what you're doing.",
+        "tip_sl_edit": "Shows the highest DLSS runtime (Streamline SDK) version present in YOUR file. Auto-detected. Known versions: 2.7.x = DLSS 4, 2.10.0+ = DLSS 4.5 (Presets L/M), 2.11.x = Dynamic MFG + MFG 6X. NVIDIA App pins a version PER GAME; bumping here only selects which already-installed DLL to load — it does NOT download new versions. Latest as of May 2026 is 2.11.1.",
         "tip_sl_scan": "Reads your file and fills the field with the highest DLSS version already present. Always safe to use this value.",
         "tip_patch_fp": "Edits a second NVIDIA file that controls how NEWLY-DETECTED games start. Without this, future-installed games will come with DLSS locked again. Keep ON.",
         "tip_readonly_cb": "After processing, marks the file as 'read-only' so NVIDIA App can't undo your changes. Important: if you install a NEW game later, you need to uncheck this first (use the 'Make Writable' button).",
@@ -284,6 +438,23 @@ LANG = {
         "tutorial_btn": "📖 Tutorial",
         "log_tutorial_opened": "Tutorial opened in browser",
         "dlg_tutorial_missing": "Tutorial not found in program bundle.",
+        # RTSS auto-config (Smooth Motion fix for Star Citizen)
+        "rtss_btn": "🎮 Smooth Motion (SC)",
+        "tip_rtss_btn": "Configures RTSS (RivaTuner) to prevent black-screen in Star Citizen when using Smooth Motion. Auto-enables 'Microsoft Detours API hooking'. Requires RTSS installed (separate free program).",
+        "rtss_dlg_title": "Configure Smooth Motion (Star Citizen)",
+        "rtss_dlg_confirm": "This will create/edit the RTSS profile for StarCitizen.exe with 'Microsoft Detours' enabled — required fix so Smooth Motion doesn't cause a black-screen.\n\nContinue?",
+        "rtss_not_found_msg": "RTSS (RivaTuner Statistics Server) is not installed.\n\nDownload it free from:\nhttps://www.guru3d.com/download/rtss-rivatuner-statistics-server-download/\n\nOpen the link now?",
+        "rtss_already_configured_msg": "✅ Star Citizen profile is already configured correctly.\nNothing to do.\n\nPath: {p}",
+        "rtss_profile_created_msg": "✅ Star Citizen profile created successfully.\n\nPath: {p}\n\nRestart RTSS now to apply?",
+        "rtss_profile_updated_msg": "✅ Star Citizen profile updated (Detours enabled).\n\nPath: {p}\n\nRestart RTSS now to apply?",
+        "rtss_write_fail_msg": "❌ Failed to write RTSS profile:\n{e}\n\nTry running as Administrator.",
+        "rtss_profile_dir_fail_msg": "❌ Failed to create RTSS profiles directory:\n{e}",
+        "log_rtss_starting": "Starting RTSS configuration for Star Citizen...",
+        "log_rtss_install_found": "RTSS found at: {p}",
+        "log_rtss_no_install": "RTSS is not installed",
+        "log_rtss_done": "RTSS configuration done",
+        "log_rtss_running": "RTSS is running — restart recommended",
+        "log_rtss_not_running": "RTSS is not running — open it manually for the fix to take effect",
         "tip_donate_pix": "Copies the PIX key (Brazil) so you can paste it in your bank's app. Donations keep the project alive!",
         "tip_donate_bep20": "Copies the BSC/BEP20 wallet address (crypto). Accepts USDT, USDC, BTCB, BUSD on Binance Smart Chain. DO NOT send native Bitcoin.",
         "tip_donate_paypal": "Opens PayPal in your browser to make a donation by card or PayPal account. Accepts card without needing an account.",
@@ -784,7 +955,7 @@ class NPIInfoDialog(QtWidgets.QDialog):
 # Main window
 # ---------------------------------------------------------------------------
 class DLSSOverrideApp(QtWidgets.QMainWindow):
-    APP_VERSION = "2.4"
+    APP_VERSION = "2.5"
     TESTED_AGAINST_NVAPP = "11.0.7"
 
     def __init__(self):
@@ -930,6 +1101,11 @@ class DLSSOverrideApp(QtWidgets.QMainWindow):
         self.tutorial_button.clicked.connect(self.show_tutorial)
         util.addWidget(self.tutorial_button)
 
+        self.rtss_button = QtWidgets.QPushButton()
+        self.rtss_button.setObjectName("rtssButton")
+        self.rtss_button.clicked.connect(self.run_rtss_setup)
+        util.addWidget(self.rtss_button)
+
         self.npi_button = QtWidgets.QPushButton("Driver-side overrides (NPI)")
         self.npi_button.clicked.connect(self.show_npi_info)
         util.addWidget(self.npi_button)
@@ -1074,6 +1250,8 @@ class DLSSOverrideApp(QtWidgets.QMainWindow):
         self.restart_services_button.setToolTip(self._t("tip_restart_svc"))
         self.tutorial_button.setText(self._t("tutorial_btn"))
         self.tutorial_button.setToolTip(self._t("tip_tutorial"))
+        self.rtss_button.setText(self._t("rtss_btn"))
+        self.rtss_button.setToolTip(self._t("tip_rtss_btn"))
         self.npi_button.setText(self._t("npi_btn"))
         self.npi_button.setToolTip(self._t("tip_npi_btn"))
         self.clear_log_button.setText(self._t("clear_log"))
@@ -1107,6 +1285,8 @@ class DLSSOverrideApp(QtWidgets.QMainWindow):
         QPushButton#npiButton:hover { background-color: #1E5C1E; }
         QPushButton#tutorialButton { background-color: #00ACC1; }
         QPushButton#tutorialButton:hover { background-color: #00838F; }
+        QPushButton#rtssButton { background-color: #455A64; }
+        QPushButton#rtssButton:hover { background-color: #37474F; }
         QPushButton#flagButton { background-color: #2d2d30; border: 1px solid #444; padding: 3px 8px;
                                  font-size: 12px; font-weight: 600; }
         QPushButton#flagButton:hover { background-color: #3a3a3e; border-color: #007ACC; }
@@ -1228,6 +1408,65 @@ class DLSSOverrideApp(QtWidgets.QMainWindow):
         url = "file:///" + html_path.replace(os.sep, "/")
         webbrowser.open(url)
         self.log(self._t("log_tutorial_opened"))
+
+    def run_rtss_setup(self):
+        """Auto-config RTSS profile for Star Citizen with Microsoft Detours
+        enabled — required so NVIDIA Smooth Motion doesn't cause a black screen."""
+        # Step 1: confirm with user
+        reply = QtWidgets.QMessageBox.question(
+            self, self._t("rtss_dlg_title"), self._t("rtss_dlg_confirm"),
+            QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+        if reply != QtWidgets.QMessageBox.StandardButton.Yes:
+            return
+
+        self.log("=" * 50)
+        self.log(self._t("log_rtss_starting"))
+
+        # Step 2: detect RTSS
+        install = find_rtss_install()
+        if not install:
+            self.log(self._t("log_rtss_no_install"))
+            r = QtWidgets.QMessageBox.question(
+                self, self._t("rtss_dlg_title"), self._t("rtss_not_found_msg"),
+                QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+            if r == QtWidgets.QMessageBox.StandardButton.Yes:
+                webbrowser.open(RTSS_DOWNLOAD_URL)
+            self.log("=" * 50)
+            return
+        self.log(self._t("log_rtss_install_found", p=install))
+
+        # Step 3: configure profile
+        ok, msg_key, extra = configure_rtss_for_sc(self.log)
+
+        if not ok:
+            if msg_key == "rtss_write_fail":
+                msg = self._t("rtss_write_fail_msg", e=extra)
+            else:
+                msg = self._t("rtss_profile_dir_fail_msg", e=extra)
+            QtWidgets.QMessageBox.critical(self, self._t("dlg_error_title"), msg)
+            self.log("=" * 50)
+            return
+
+        # Step 4: show result + ask to restart RTSS (only if profile changed)
+        if msg_key == "rtss_already_configured":
+            QtWidgets.QMessageBox.information(
+                self, self._t("rtss_dlg_title"),
+                self._t("rtss_already_configured_msg", p=extra))
+        else:
+            msg_text = self._t(f"{msg_key}_msg", p=extra)
+            running = is_rtss_running()
+            self.log(self._t("log_rtss_running" if running else "log_rtss_not_running"))
+            if running:
+                r = QtWidgets.QMessageBox.question(
+                    self, self._t("rtss_dlg_title"), msg_text,
+                    QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+                if r == QtWidgets.QMessageBox.StandardButton.Yes:
+                    restart_rtss(self.log)
+            else:
+                QtWidgets.QMessageBox.information(
+                    self, self._t("rtss_dlg_title"), msg_text)
+        self.log(self._t("log_rtss_done"))
+        self.log("=" * 50)
 
     def scan_sl_action(self):
         path = self.path_edit.text().strip()

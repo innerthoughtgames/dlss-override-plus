@@ -23,7 +23,7 @@ multi-language UI, and a bunch of safety nets.
 [FAQ](#-faq) •
 [Support](#-support-the-project)
 
-<img src="screenshot_app.png" alt="DLSS Override+ v2.4" width="900">
+<img src="screenshot_app.png" alt="DLSS Override+ v2.5" width="900">
 
 </div>
 
@@ -38,12 +38,14 @@ multi-language UI, and a bunch of safety nets.
 - 📊 **System probe** — Auto-detects NVIDIA App version + GPU family, warns about hardware-locked features
 - 🎯 **Smart defaults** — Auto-fills Streamline SDK version from your existing JSON, no guessing
 - 🔧 **NPI reference panel** — Documented driver-side hex IDs for users who want hardcore control
+- 🎮 **One-click Smooth Motion fix for Star Citizen** *(new in v2.5)* — Auto-configures RTSS profile with Microsoft Detours hooking to prevent NVIDIA Smooth Motion black-screen
+- 📖 **Embedded HTML tutorial** — Click 📖 Tutorial to open the full bilingual guide in your browser; no external files needed
 - ☕ **Bundled donation widget** — Inline PIX QR + crypto + PayPal buttons (no obnoxious popups)
 
 ## 🚀 Quick Start
 
 ```
-1. Download DLSS_Override_Editor_v2.4.exe from Releases
+1. Download dlss_override_plus_v2.5.exe from Releases
 2. Double-click to open
 3. Click "Process File"  →  Click "Restart NVIDIA Services"
 ```
@@ -73,7 +75,7 @@ Without that mirror, NVIDIA App would re-apply defaults on every newly fingerpri
 <details>
 <summary><b>Click to expand</b> — Portuguese UI / English UI</summary>
 
-<img src="screenshot_app.png" alt="DLSS Override+ v2.4 main window" width="900">
+<img src="screenshot_app.png" alt="DLSS Override+ v2.5 main window" width="900">
 
 Flag toggle buttons at the top right switch the entire UI — labels, tooltips, status bar, and log messages — instantly.
 The donation sidebar (right) shows an embedded PIX QR code and one-click copy buttons for PIX, crypto, and PayPal.
@@ -202,7 +204,7 @@ python "DLSS Override+.py"
 
 # Or build a .exe
 python -m PyInstaller --clean --noconfirm DLSS_Override_Editor.spec
-# Output: dist/DLSS_Override_Editor_v2.4.exe
+# Output: dist/dlss_override_plus_v2.5.exe
 ```
 
 ## 🏗️ How it works
