@@ -28,3 +28,13 @@ ApplicationStorage.json.backup.meta
 # OS
 Thumbs.db
 .DS_Store
+
+# Personal/strategy notes (don't push to public repo)
+PLANO_MONETIZACAO.md
+*_PRIVATE.md
+*_PESSOAL.md
+_*.py
+_*.json
+_*.jpg
+tutorial-*.mp4
+tutorial-*.srt
