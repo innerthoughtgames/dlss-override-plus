@@ -205,8 +205,8 @@
 <div class="step">
   <div class="num">1</div>
   <div class="body">
-    <h4 data-pt>Abra o <code>dlss_override_plus_v2.5.exe</code></h4>
-    <h4 data-en>Open <code>dlss_override_plus_v2.5.exe</code></h4>
+    <h4 data-pt>Abra o <code>dlss_override_plus_v2.6.exe</code></h4>
+    <h4 data-en>Open <code>dlss_override_plus_v2.6.exe</code></h4>
     <p data-pt>Duplo-clique. Não precisa "Executar como administrador" — só precisa se você quiser ativar o indicador on-screen (opcional, passo 5).</p>
     <p data-en>Double-click. No need to "Run as administrator" — only required if you want to enable the on-screen indicator (optional, step 5).</p>
   </div>
@@ -388,11 +388,40 @@ Performance = M
 <ul>
 <li data-pt>⚙️ <b>Upscale Tech:</b> Transformer (não use "Legacy")</li>
 <li data-en>⚙️ <b>Upscale Tech:</b> Transformer (don't use "Legacy")</li>
-<li data-pt>⚙️ <b>Smooth Motion:</b> ON — salva nas cidades de pouso (precisa de HAGS ativo)</li>
-<li data-en>⚙️ <b>Smooth Motion:</b> ON — saves frames in landing cities (HAGS must be on)</li>
+<li data-pt>⚙️ <b>Smooth Motion:</b> ON — salva nas cidades de pouso (precisa de HAGS ativo + fix RTSS abaixo)</li>
+<li data-en>⚙️ <b>Smooth Motion:</b> ON — saves frames in landing cities (HAGS must be on + RTSS fix below)</li>
 <li data-pt>⚙️ <b>V-Sync:</b> OFF — +30 FPS deixando G-Sync do monitor agir</li>
 <li data-en>⚙️ <b>V-Sync:</b> OFF — +30 FPS by letting monitor G-Sync handle it</li>
 </ul>
+
+<h3 data-pt>🛠️ Fix Smooth Motion (Star Citizen) — botão <span class="button-name">🎮 Smooth Motion (SC)</span></h3>
+<h3 data-en>🛠️ Smooth Motion fix (Star Citizen) — <span class="button-name">🎮 Smooth Motion (SC)</span> button</h3>
+
+<div data-pt>
+<p>O <b>Smooth Motion</b> da NVIDIA (driver-side frame interpolation) <b>dá tela preta no Star Citizen</b> porque colide com o overlay padrão do RivaTuner Statistics Server (RTSS). O fix é fazer o RTSS usar <b>Microsoft Detours API hooking</b> em vez do hook padrão.</p>
+<p>Esse botão automatiza tudo:</p>
+<ul>
+  <li>✅ Detecta se o RTSS está instalado</li>
+  <li>✅ Cria/atualiza o perfil <code>StarCitizen.exe.cfg</code> com <code>UseDetours=1</code></li>
+  <li>✅ Garante que o API hook global do RTSS está ativo</li>
+  <li>✅ Pergunta se você quer configurar o RTSS pra iniciar com o Windows (recomendado — assim sempre estará rodando quando você abrir o jogo)</li>
+  <li>✅ Reinicia o RTSS pra aplicar (se ele estiver rodando)</li>
+</ul>
+<p><b>Pré-requisito:</b> ter o RTSS instalado. Se não tiver, o botão te avisa e oferece abrir a página de download (gratuito, ~18 MB, na <a href="https://www.guru3d.com/download/rtss-rivatuner-statistics-server-download/" style="color:#4dabff" target="_blank">Guru3D</a>). Não precisa do MSI Afterburner — só o <code>RTSSSetup737.exe</code>.</p>
+</div>
+
+<div data-en>
+<p>NVIDIA <b>Smooth Motion</b> (driver-side frame interpolation) <b>causes a black screen in Star Citizen</b> because it conflicts with RivaTuner Statistics Server (RTSS) default overlay hook. The fix is to make RTSS use <b>Microsoft Detours API hooking</b> instead of the default.</p>
+<p>This button automates everything:</p>
+<ul>
+  <li>✅ Detects if RTSS is installed</li>
+  <li>✅ Creates/updates the <code>StarCitizen.exe.cfg</code> profile with <code>UseDetours=1</code></li>
+  <li>✅ Ensures RTSS global API hook is enabled</li>
+  <li>✅ Asks if you want RTSS to start with Windows (recommended — that way it's always running when you launch the game)</li>
+  <li>✅ Restarts RTSS to apply (if it's running)</li>
+</ul>
+<p><b>Prerequisite:</b> RTSS installed. If not, the button warns you and offers to open the download page (free, ~18 MB, from <a href="https://www.guru3d.com/download/rtss-rivatuner-statistics-server-download/" style="color:#4dabff" target="_blank">Guru3D</a>). You don't need MSI Afterburner — just <code>RTSSSetup737.exe</code>.</p>
+</div>
 
 <h2>FAQ</h2>
 
@@ -494,7 +523,7 @@ Performance = M
 </section>
 
 <footer>
-  ITG • DLSS Override+ v2.5 • NVIDIA App 11.0.7.x<br>
+  ITG • DLSS Override+ v2.6 • NVIDIA App 11.0.7.x<br>
   <span data-pt>Em caso de dúvida, peça print do log pra quem te mandou o programa.</span>
   <span data-en>If in doubt, send a screenshot of the log to whoever shared the program.</span>
 </footer>

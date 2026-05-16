@@ -1,4 +1,4 @@
-import sys, os, re, json, shutil, stat, getpass, hashlib, subprocess, ctypes, webbrowser
+import sys, os, re, json, shutil, stat, getpass, hashlib, subprocess, ctypes, webbrowser, winreg
 from datetime import datetime
 from PyQt6 import QtWidgets, QtGui, QtCore
 
@@ -231,6 +231,148 @@ def restart_rtss(log_func):
         log_func(f"  RTSS restart failed: {e}")
         return False
 
+RTSS_RUN_REG_NAME = "RTSS"
+_RUN_KEY_PATH = r"Software\Microsoft\Windows\CurrentVersion\Run"
+
+def _read_rtss_ini(install, name):
+    """Read Profiles/<name> from RTSS install. Returns (content, error).
+    Missing file is treated as empty string (not an error)."""
+    path = os.path.join(install, "Profiles", name)
+    if not os.path.exists(path):
+        return ("", None)
+    try:
+        with open(path, "r", encoding="utf-8", errors="replace") as f:
+            return (f.read(), None)
+    except Exception as e:
+        return (None, str(e))
+
+def _write_rtss_ini(install, name, content):
+    path = os.path.join(install, "Profiles", name)
+    try:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(content)
+        return (True, None)
+    except Exception as e:
+        return (False, str(e))
+
+def _set_ini_value(content, section, key, value):
+    """Set [section] key=value in a Windows INI-style string.
+    Preserves line endings. Creates section/key if missing.
+    Returns updated content (may equal input if no change needed)."""
+    lines = content.splitlines(keepends=True)
+    section_marker = f"[{section}]"
+    section_start = -1
+    section_end = len(lines)
+
+    for i, line in enumerate(lines):
+        stripped = line.strip()
+        if stripped == section_marker:
+            section_start = i
+        elif section_start >= 0 and stripped.startswith("[") and stripped.endswith("]"):
+            section_end = i
+            break
+
+    sep = "\r\n" if "\r\n" in content else "\n"
+
+    if section_start < 0:
+        prefix = content
+        if prefix and not prefix.endswith(("\n", "\r")):
+            prefix += sep
+        return prefix + f"[{section}]{sep}{key}={value}{sep}"
+
+    key_re = re.compile(rf"^\s*{re.escape(key)}\s*=\s*(.*?)\s*$")
+    for i in range(section_start + 1, section_end):
+        m = key_re.match(lines[i].rstrip("\r\n"))
+        if m:
+            if m.group(1) == str(value):
+                return content  # No change needed
+            ending = ""
+            if lines[i].endswith("\r\n"):
+                ending = "\r\n"
+            elif lines[i].endswith("\n"):
+                ending = "\n"
+            lines[i] = f"{key}={value}{ending}"
+            return "".join(lines)
+
+    # Key not in section — insert at end of section
+    lines.insert(section_end, f"{key}={value}{sep}")
+    return "".join(lines)
+
+def is_rtss_autostart_enabled():
+    """True if RTSS is registered to start with Windows (HKCU Run key)."""
+    try:
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, _RUN_KEY_PATH, 0,
+                            winreg.KEY_QUERY_VALUE) as k:
+            winreg.QueryValueEx(k, RTSS_RUN_REG_NAME)
+            return True
+    except FileNotFoundError:
+        return False
+    except OSError:
+        return False
+
+def ensure_rtss_starts_with_windows(log_func, enable=True):
+    """Enable/disable RTSS auto-start with Windows.
+    Writes both the HKCU Run registry value (the actual mechanism)
+    and the RTSS Profiles/Config StartWithWindows flag (for UI consistency).
+    Returns (success, error_msg)."""
+    install = find_rtss_install()
+    if not install:
+        return (False, "RTSS not installed")
+
+    # Update Profiles/Config for UI consistency (non-fatal if it fails)
+    content, err = _read_rtss_ini(install, "Config")
+    if err is None:
+        new_content = _set_ini_value(content, "Settings", "StartWithWindows",
+                                     "1" if enable else "0")
+        if new_content != content:
+            ok, werr = _write_rtss_ini(install, "Config", new_content)
+            if not ok:
+                log_func(f"  Could not update Profiles/Config: {werr}")
+
+    # The actual auto-start mechanism: HKCU Run key
+    rtss_exe = os.path.join(install, "RTSS.exe")
+    try:
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, _RUN_KEY_PATH, 0,
+                            winreg.KEY_SET_VALUE) as k:
+            if enable:
+                winreg.SetValueEx(k, RTSS_RUN_REG_NAME, 0, winreg.REG_SZ,
+                                  f'"{rtss_exe}"')
+                log_func("  Registered RTSS for Windows startup")
+            else:
+                try:
+                    winreg.DeleteValue(k, RTSS_RUN_REG_NAME)
+                    log_func("  Unregistered RTSS from Windows startup")
+                except FileNotFoundError:
+                    pass
+        return (True, None)
+    except Exception as e:
+        return (False, str(e))
+
+def ensure_rtss_global_hooks_enabled(log_func):
+    """Make sure RTSS global API hook + OSD support are ON in Profiles/Global.
+    These are normally ON by default but may be disabled in some installs.
+    Returns (success, changed, error_msg)."""
+    install = find_rtss_install()
+    if not install:
+        return (False, False, "RTSS not installed")
+
+    content, err = _read_rtss_ini(install, "Global")
+    if err:
+        return (False, False, err)
+
+    new_content = _set_ini_value(content, "Hooking", "EnableHooking", "1")
+    new_content = _set_ini_value(new_content, "OSD", "EnableOSD", "1")
+
+    if new_content == content:
+        return (True, False, None)
+
+    ok, werr = _write_rtss_ini(install, "Global", new_content)
+    if ok:
+        log_func("  Enabled global API hook + OSD support")
+        return (True, True, None)
+    return (False, False, werr)
+
 # ---------------------------------------------------------------------------
 # i18n
 # ---------------------------------------------------------------------------
@@ -319,6 +461,12 @@ LANG = {
         "log_rtss_done": "Configuração do RTSS concluída",
         "log_rtss_running": "RTSS está rodando — restart recomendado",
         "log_rtss_not_running": "RTSS não está rodando — abra ele manualmente para o fix funcionar",
+        "rtss_autostart_dlg_msg": "Quer que o RTSS inicie automaticamente com o Windows? (recomendado)\n\nAssim ele estará sempre rodando quando você abrir o Star Citizen — sem precisar lembrar de abrir o RTSS antes.\n\nOcupa ~10 MB de RAM em background. Pode desativar depois no Gerenciador de Tarefas → Inicialização.",
+        "log_rtss_autostart_already": "RTSS já estava configurado para iniciar com o Windows",
+        "log_rtss_autostart_enabled": "RTSS configurado para iniciar com o Windows ✓",
+        "log_rtss_autostart_skipped": "Auto-start não configurado (escolha do usuário)",
+        "log_rtss_autostart_failed": "Falha ao configurar auto-start: {e}",
+        "log_rtss_hooks_already_ok": "API hook global do RTSS já estava ativo",
         "tip_donate_pix": "Copia a chave PIX (Brasil) para você colar no app do seu banco. Doação ajuda a manter o projeto vivo!",
         "tip_donate_bep20": "Copia o endereço da carteira BSC/BEP20 (cripto). Aceita USDT, USDC, BTCB, BUSD na rede Binance Smart Chain. NÃO envie Bitcoin nativo.",
         "tip_donate_paypal": "Abre o PayPal no navegador para fazer uma doação por cartão ou conta PayPal. Aceita cartão sem precisar ter conta PayPal.",
@@ -455,6 +603,12 @@ LANG = {
         "log_rtss_done": "RTSS configuration done",
         "log_rtss_running": "RTSS is running — restart recommended",
         "log_rtss_not_running": "RTSS is not running — open it manually for the fix to take effect",
+        "rtss_autostart_dlg_msg": "Want RTSS to start automatically with Windows? (recommended)\n\nThis way it's always running when you launch Star Citizen — no need to remember to open RTSS first.\n\nUses ~10 MB RAM in background. You can disable it later via Task Manager → Startup.",
+        "log_rtss_autostart_already": "RTSS was already configured to start with Windows",
+        "log_rtss_autostart_enabled": "RTSS configured to start with Windows ✓",
+        "log_rtss_autostart_skipped": "Auto-start not configured (user choice)",
+        "log_rtss_autostart_failed": "Failed to configure auto-start: {e}",
+        "log_rtss_hooks_already_ok": "RTSS global API hook was already enabled",
         "tip_donate_pix": "Copies the PIX key (Brazil) so you can paste it in your bank's app. Donations keep the project alive!",
         "tip_donate_bep20": "Copies the BSC/BEP20 wallet address (crypto). Accepts USDT, USDC, BTCB, BUSD on Binance Smart Chain. DO NOT send native Bitcoin.",
         "tip_donate_paypal": "Opens PayPal in your browser to make a donation by card or PayPal account. Accepts card without needing an account.",
@@ -955,7 +1109,7 @@ class NPIInfoDialog(QtWidgets.QDialog):
 # Main window
 # ---------------------------------------------------------------------------
 class DLSSOverrideApp(QtWidgets.QMainWindow):
-    APP_VERSION = "2.5"
+    APP_VERSION = "2.6"
     TESTED_AGAINST_NVAPP = "11.0.7"
 
     def __init__(self):
@@ -1435,7 +1589,7 @@ class DLSSOverrideApp(QtWidgets.QMainWindow):
             return
         self.log(self._t("log_rtss_install_found", p=install))
 
-        # Step 3: configure profile
+        # Step 3: configure Star Citizen profile (UseDetours=1)
         ok, msg_key, extra = configure_rtss_for_sc(self.log)
 
         if not ok:
@@ -1447,7 +1601,29 @@ class DLSSOverrideApp(QtWidgets.QMainWindow):
             self.log("=" * 50)
             return
 
-        # Step 4: show result + ask to restart RTSS (only if profile changed)
+        # Step 4: ensure global API hook + OSD are ON (silent unless changed)
+        hooks_ok, hooks_changed, _ = ensure_rtss_global_hooks_enabled(self.log)
+        if hooks_ok and not hooks_changed:
+            self.log("  " + self._t("log_rtss_hooks_already_ok"))
+
+        # Step 5: offer auto-start with Windows (only if not already enabled)
+        if not is_rtss_autostart_enabled():
+            r = QtWidgets.QMessageBox.question(
+                self, self._t("rtss_dlg_title"),
+                self._t("rtss_autostart_dlg_msg"),
+                QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+            if r == QtWidgets.QMessageBox.StandardButton.Yes:
+                as_ok, as_err = ensure_rtss_starts_with_windows(self.log, enable=True)
+                if not as_ok:
+                    self.log("  " + self._t("log_rtss_autostart_failed", e=as_err))
+                else:
+                    self.log("  " + self._t("log_rtss_autostart_enabled"))
+            else:
+                self.log("  " + self._t("log_rtss_autostart_skipped"))
+        else:
+            self.log("  " + self._t("log_rtss_autostart_already"))
+
+        # Step 6: show result + ask to restart RTSS (only if profile changed)
         if msg_key == "rtss_already_configured":
             QtWidgets.QMessageBox.information(
                 self, self._t("rtss_dlg_title"),

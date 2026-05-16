@@ -1,7 +1,12 @@
 # PyInstaller build artifacts
 build/
 dist/
+dist_nuitka/
 *.spec.bak
+*.log
+
+# RTSS installer (kept locally for testing, not redistributed)
+[[]Guru3D[]]*
 
 # Python
 __pycache__/
