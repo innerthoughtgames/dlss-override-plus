@@ -205,8 +205,8 @@
 <div class="step">
   <div class="num">1</div>
   <div class="body">
-    <h4 data-pt>Abra o <code>dlss_override_plus_v2.6.exe</code></h4>
-    <h4 data-en>Open <code>dlss_override_plus_v2.6.exe</code></h4>
+    <h4 data-pt>Abra o <code>dlss_override_plus_v2.6.1.exe</code></h4>
+    <h4 data-en>Open <code>dlss_override_plus_v2.6.1.exe</code></h4>
     <p data-pt>Duplo-clique. Não precisa "Executar como administrador" — só precisa se você quiser ativar o indicador on-screen (opcional, passo 5).</p>
     <p data-en>Double-click. No need to "Run as administrator" — only required if you want to enable the on-screen indicator (optional, step 5).</p>
   </div>
@@ -398,29 +398,31 @@ Performance = M
 <h3 data-en>🛠️ Smooth Motion fix (Star Citizen) — <span class="button-name">🎮 Smooth Motion (SC)</span> button</h3>
 
 <div data-pt>
-<p>O <b>Smooth Motion</b> da NVIDIA (driver-side frame interpolation) <b>dá tela preta no Star Citizen</b> porque colide com o overlay padrão do RivaTuner Statistics Server (RTSS). O fix é fazer o RTSS usar <b>Microsoft Detours API hooking</b> em vez do hook padrão.</p>
-<p>Esse botão automatiza tudo:</p>
-<ul>
-  <li>✅ Detecta se o RTSS está instalado</li>
-  <li>✅ Cria/atualiza o perfil <code>StarCitizen.exe.cfg</code> com <code>UseDetours=1</code></li>
-  <li>✅ Garante que o API hook global do RTSS está ativo</li>
-  <li>✅ Pergunta se você quer configurar o RTSS pra iniciar com o Windows (recomendado — assim sempre estará rodando quando você abrir o jogo)</li>
-  <li>✅ Reinicia o RTSS pra aplicar (se ele estiver rodando)</li>
-</ul>
-<p><b>Pré-requisito:</b> ter o RTSS instalado. Se não tiver, o botão te avisa e oferece abrir a página de download (gratuito, ~18 MB, na <a href="https://www.guru3d.com/download/rtss-rivatuner-statistics-server-download/" style="color:#4dabff" target="_blank">Guru3D</a>). Não precisa do MSI Afterburner — só o <code>RTSSSetup737.exe</code>.</p>
+<p>O <b>Smooth Motion</b> da NVIDIA (frame interpolation no driver) <b>dá tela preta no Star Citizen</b> porque colide com o overlay padrão do RivaTuner Statistics Server (RTSS). O fix é fazer o RTSS usar <b>Microsoft Detours API hooking</b> no profile do StarCitizen.exe.</p>
+<p><b>Como o botão funciona (v2.6.1):</b> ele <b>abre o RTSS pra você</b> e mostra um <b>guia visual com 2 passos</b> dentro do nosso app. Você faz os cliques na interface do RTSS — o nosso app só te orienta. Como o RTSS é assinado por uma CA confiável, os antivírus não reclamam (diferente da versão anterior que tentava editar configs por baixo e disparava o Kaspersky).</p>
+<p><b>Pré-requisito:</b> RTSS instalado. Se não tiver, o botão te oferece abrir a página de download (gratuito, ~18 MB, na <a href="https://www.guru3d.com/download/rtss-rivatuner-statistics-server-download/" style="color:#4dabff" target="_blank">Guru3D</a>). Não precisa do MSI Afterburner — só o <code>RTSSSetup737.exe</code>.</p>
+<h4>Passo 1 — Adicionar StarCitizen.exe (se ainda não estiver na lista)</h4>
+<p>Na lista da esquerda <i>Application profile properties</i>, procure <b>StarCitizen.exe</b>. Se não tiver, clique no botão verde <b>Add</b> e navegue até <code>...\StarCitizen\LIVE\Bin64\StarCitizen.exe</code>.</p>
+<p><b>Bônus:</b> no canto superior esquerdo, marque <b>Start with Windows ON</b> pra RTSS iniciar com o PC.</p>
+<img src="rtss_guide_add_star_citizen.png" alt="Adicionar StarCitizen.exe no RTSS" style="max-width:100%; border:1px solid #444; padding:4px; background:#1a1a1a;">
+<h4>Passo 2 — Ativar Microsoft Detours API hooking</h4>
+<p>Com <b>StarCitizen.exe</b> selecionado na lista, clique no botão azul <b>Setup</b> → aba <b>General</b> → role até <b>Injection properties</b> → marque ✅ <b>Use Microsoft Detours API hooking</b> → <b>OK</b>.</p>
+<img src="rtss_guide_detours.png" alt="Ativar Detours no Setup do RTSS" style="max-width:100%; border:1px solid #444; padding:4px; background:#1a1a1a;">
+<p>✅ <b>Pronto.</b> Smooth Motion vai funcionar sem tela preta. Pode fechar o RTSS — ele continua na bandeja.</p>
 </div>
 
 <div data-en>
-<p>NVIDIA <b>Smooth Motion</b> (driver-side frame interpolation) <b>causes a black screen in Star Citizen</b> because it conflicts with RivaTuner Statistics Server (RTSS) default overlay hook. The fix is to make RTSS use <b>Microsoft Detours API hooking</b> instead of the default.</p>
-<p>This button automates everything:</p>
-<ul>
-  <li>✅ Detects if RTSS is installed</li>
-  <li>✅ Creates/updates the <code>StarCitizen.exe.cfg</code> profile with <code>UseDetours=1</code></li>
-  <li>✅ Ensures RTSS global API hook is enabled</li>
-  <li>✅ Asks if you want RTSS to start with Windows (recommended — that way it's always running when you launch the game)</li>
-  <li>✅ Restarts RTSS to apply (if it's running)</li>
-</ul>
-<p><b>Prerequisite:</b> RTSS installed. If not, the button warns you and offers to open the download page (free, ~18 MB, from <a href="https://www.guru3d.com/download/rtss-rivatuner-statistics-server-download/" style="color:#4dabff" target="_blank">Guru3D</a>). You don't need MSI Afterburner — just <code>RTSSSetup737.exe</code>.</p>
+<p>NVIDIA <b>Smooth Motion</b> (driver-side frame interpolation) <b>causes a black screen in Star Citizen</b> because it conflicts with the RivaTuner Statistics Server (RTSS) default overlay hook. The fix is to make RTSS use <b>Microsoft Detours API hooking</b> on the StarCitizen.exe profile.</p>
+<p><b>How the button works (v2.6.1):</b> it <b>opens RTSS for you</b> and shows a <b>visual 2-step guide</b> inside our app. You do the clicks in the RTSS UI — our app just walks you through. Since RTSS is signed by a trusted CA, antivirus doesn't complain (unlike the previous version which tried to edit configs under the hood and triggered Kaspersky).</p>
+<p><b>Prerequisite:</b> RTSS installed. If not, the button offers to open the download page (free, ~18 MB, from <a href="https://www.guru3d.com/download/rtss-rivatuner-statistics-server-download/" style="color:#4dabff" target="_blank">Guru3D</a>). You don't need MSI Afterburner — just <code>RTSSSetup737.exe</code>.</p>
+<h4>Step 1 — Add StarCitizen.exe (if not already in the list)</h4>
+<p>In the left list <i>Application profile properties</i>, look for <b>StarCitizen.exe</b>. If it's not there, click the green <b>Add</b> button and browse to <code>...\StarCitizen\LIVE\Bin64\StarCitizen.exe</code>.</p>
+<p><b>Bonus:</b> in the top-left corner, toggle <b>Start with Windows ON</b> so RTSS launches with your PC.</p>
+<img src="rtss_guide_add_star_citizen.png" alt="Add StarCitizen.exe to RTSS" style="max-width:100%; border:1px solid #444; padding:4px; background:#1a1a1a;">
+<h4>Step 2 — Enable Microsoft Detours API hooking</h4>
+<p>With <b>StarCitizen.exe</b> selected in the list, click the blue <b>Setup</b> button → <b>General</b> tab → scroll to <b>Injection properties</b> → check ✅ <b>Use Microsoft Detours API hooking</b> → <b>OK</b>.</p>
+<img src="rtss_guide_detours.png" alt="Enable Detours in RTSS Setup" style="max-width:100%; border:1px solid #444; padding:4px; background:#1a1a1a;">
+<p>✅ <b>Done.</b> Smooth Motion will work without the black screen. You can close RTSS — it stays in the system tray.</p>
 </div>
 
 <h2>FAQ</h2>
@@ -523,7 +525,7 @@ Performance = M
 </section>
 
 <footer>
-  ITG • DLSS Override+ v2.6 • NVIDIA App 11.0.7.x<br>
+  ITG • DLSS Override+ v2.6.1 • NVIDIA App 11.0.7.x<br>
   <span data-pt>Em caso de dúvida, peça print do log pra quem te mandou o programa.</span>
   <span data-en>If in doubt, send a screenshot of the log to whoever shared the program.</span>
 </footer>

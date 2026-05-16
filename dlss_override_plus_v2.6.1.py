@@ -1,4 +1,4 @@
-import sys, os, re, json, shutil, stat, getpass, hashlib, subprocess, ctypes, webbrowser, winreg
+import sys, os, re, json, shutil, stat, getpass, hashlib, subprocess, ctypes, webbrowser
 from datetime import datetime
 from PyQt6 import QtWidgets, QtGui, QtCore
 
@@ -109,40 +109,6 @@ RTSS_CANDIDATE_PATHS = [
     r"C:\Program Files\RivaTuner Statistics Server",
 ]
 RTSS_DOWNLOAD_URL = "https://www.guru3d.com/download/rtss-rivatuner-statistics-server-download/"
-RTSS_SC_PROFILE_NAME = "StarCitizen.exe.cfg"
-
-# Minimal profile content with UseDetours=1 enabled. Written when no profile exists.
-RTSS_SC_PROFILE_TEMPLATE = """[Framerate]
-Limit=0
-LimitDenominator=1
-PassiveWait=1
-ReflexSleep=0
-ReflexSetLatencyMarker=1
-[Hooking]
-EnableHooking=1
-HookDirect3D8=1
-HookDirect3D9=1
-HookDXGI=1
-HookDirect3D12=1
-HookOpenGL=1
-HookVulkan=1
-InjectionDelay=15000
-UseDetours=1
-[RendererDirect3D8]
-Implementation=2
-[RendererDirect3D9]
-Implementation=2
-[RendererDirect3D10]
-Implementation=2
-[RendererDirect3D11]
-Implementation=2
-[RendererDirect3D12]
-Implementation=2
-[RendererOpenGL]
-Implementation=2
-[RendererVulkan]
-Implementation=2
-"""
 
 def find_rtss_install():
     """Return the path to RTSS install dir, or None if not installed."""
@@ -151,227 +117,23 @@ def find_rtss_install():
             return p
     return None
 
-def configure_rtss_for_sc(log_func):
-    """Create or update the Star Citizen RTSS profile with UseDetours=1.
-    Returns (success: bool, message_key: str, extra: str)."""
-    install = find_rtss_install()
-    if not install:
-        return (False, "rtss_not_found", "")
-
-    profiles_dir = os.path.join(install, "Profiles")
-    if not os.path.isdir(profiles_dir):
-        try:
-            os.makedirs(profiles_dir, exist_ok=True)
-        except Exception as e:
-            return (False, "rtss_profile_dir_fail", str(e))
-
-    profile_path = os.path.join(profiles_dir, RTSS_SC_PROFILE_NAME)
-
-    if not os.path.exists(profile_path):
-        # Fresh profile — write the template
-        try:
-            with open(profile_path, "w", encoding="utf-8") as f:
-                f.write(RTSS_SC_PROFILE_TEMPLATE)
-            log_func(f"  Created profile: {profile_path}")
-            return (True, "rtss_profile_created", profile_path)
-        except Exception as e:
-            return (False, "rtss_write_fail", str(e))
-
-    # Profile exists — ensure UseDetours=1 in the [Hooking] section
-    try:
-        with open(profile_path, "r", encoding="utf-8") as f:
-            content = f.read()
-
-        if re.search(r"^\s*UseDetours\s*=\s*1\s*$", content, re.MULTILINE):
-            return (True, "rtss_already_configured", profile_path)
-
-        if re.search(r"^\s*UseDetours\s*=", content, re.MULTILINE):
-            content = re.sub(r"^\s*UseDetours\s*=.*$", "UseDetours=1", content,
-                             count=1, flags=re.MULTILINE)
-        elif "[Hooking]" in content:
-            content = content.replace("[Hooking]", "[Hooking]\nUseDetours=1", 1)
-        else:
-            content = content.rstrip() + "\n[Hooking]\nUseDetours=1\n"
-
-        with open(profile_path, "w", encoding="utf-8") as f:
-            f.write(content)
-        log_func(f"  Updated profile: {profile_path}")
-        return (True, "rtss_profile_updated", profile_path)
-    except Exception as e:
-        return (False, "rtss_write_fail", str(e))
-
-def is_rtss_running():
-    """Check if RTSS.exe is currently running."""
-    try:
-        result = subprocess.run(
-            ["tasklist", "/FI", "IMAGENAME eq RTSS.exe", "/NH"],
-            capture_output=True, text=True, timeout=5,
-            creationflags=subprocess.CREATE_NO_WINDOW)
-        return "RTSS.exe" in result.stdout
-    except Exception:
-        return False
-
-def restart_rtss(log_func):
-    """Restart RTSS so it picks up the new profile. Returns True on success."""
+def launch_rtss(log_func):
+    """Launch the RTSS GUI so the user can configure it themselves.
+    Doesn't kill any existing instance — that would require admin and may
+    trigger AVs. If RTSS is already running, clicking its tray icon shows
+    the window; this Popen just ensures it is open."""
     install = find_rtss_install()
     if not install:
         return False
     rtss_exe = os.path.join(install, "RTSS.exe")
     try:
-        # Stop running instance (silent — RTSS may not be running)
-        subprocess.run(["taskkill", "/F", "/IM", "RTSS.exe"],
-                       capture_output=True, timeout=5,
-                       creationflags=subprocess.CREATE_NO_WINDOW)
-        # Restart (detached so we don't block the GUI)
         subprocess.Popen([rtss_exe], creationflags=subprocess.CREATE_NO_WINDOW,
                          close_fds=True)
-        log_func("  RTSS restarted")
+        log_func("  Launched RTSS")
         return True
     except Exception as e:
-        log_func(f"  RTSS restart failed: {e}")
+        log_func(f"  RTSS launch failed: {e}")
         return False
-
-RTSS_RUN_REG_NAME = "RTSS"
-_RUN_KEY_PATH = r"Software\Microsoft\Windows\CurrentVersion\Run"
-
-def _read_rtss_ini(install, name):
-    """Read Profiles/<name> from RTSS install. Returns (content, error).
-    Missing file is treated as empty string (not an error)."""
-    path = os.path.join(install, "Profiles", name)
-    if not os.path.exists(path):
-        return ("", None)
-    try:
-        with open(path, "r", encoding="utf-8", errors="replace") as f:
-            return (f.read(), None)
-    except Exception as e:
-        return (None, str(e))
-
-def _write_rtss_ini(install, name, content):
-    path = os.path.join(install, "Profiles", name)
-    try:
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-        with open(path, "w", encoding="utf-8") as f:
-            f.write(content)
-        return (True, None)
-    except Exception as e:
-        return (False, str(e))
-
-def _set_ini_value(content, section, key, value):
-    """Set [section] key=value in a Windows INI-style string.
-    Preserves line endings. Creates section/key if missing.
-    Returns updated content (may equal input if no change needed)."""
-    lines = content.splitlines(keepends=True)
-    section_marker = f"[{section}]"
-    section_start = -1
-    section_end = len(lines)
-
-    for i, line in enumerate(lines):
-        stripped = line.strip()
-        if stripped == section_marker:
-            section_start = i
-        elif section_start >= 0 and stripped.startswith("[") and stripped.endswith("]"):
-            section_end = i
-            break
-
-    sep = "\r\n" if "\r\n" in content else "\n"
-
-    if section_start < 0:
-        prefix = content
-        if prefix and not prefix.endswith(("\n", "\r")):
-            prefix += sep
-        return prefix + f"[{section}]{sep}{key}={value}{sep}"
-
-    key_re = re.compile(rf"^\s*{re.escape(key)}\s*=\s*(.*?)\s*$")
-    for i in range(section_start + 1, section_end):
-        m = key_re.match(lines[i].rstrip("\r\n"))
-        if m:
-            if m.group(1) == str(value):
-                return content  # No change needed
-            ending = ""
-            if lines[i].endswith("\r\n"):
-                ending = "\r\n"
-            elif lines[i].endswith("\n"):
-                ending = "\n"
-            lines[i] = f"{key}={value}{ending}"
-            return "".join(lines)
-
-    # Key not in section — insert at end of section
-    lines.insert(section_end, f"{key}={value}{sep}")
-    return "".join(lines)
-
-def is_rtss_autostart_enabled():
-    """True if RTSS is registered to start with Windows (HKCU Run key)."""
-    try:
-        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, _RUN_KEY_PATH, 0,
-                            winreg.KEY_QUERY_VALUE) as k:
-            winreg.QueryValueEx(k, RTSS_RUN_REG_NAME)
-            return True
-    except FileNotFoundError:
-        return False
-    except OSError:
-        return False
-
-def ensure_rtss_starts_with_windows(log_func, enable=True):
-    """Enable/disable RTSS auto-start with Windows.
-    Writes both the HKCU Run registry value (the actual mechanism)
-    and the RTSS Profiles/Config StartWithWindows flag (for UI consistency).
-    Returns (success, error_msg)."""
-    install = find_rtss_install()
-    if not install:
-        return (False, "RTSS not installed")
-
-    # Update Profiles/Config for UI consistency (non-fatal if it fails)
-    content, err = _read_rtss_ini(install, "Config")
-    if err is None:
-        new_content = _set_ini_value(content, "Settings", "StartWithWindows",
-                                     "1" if enable else "0")
-        if new_content != content:
-            ok, werr = _write_rtss_ini(install, "Config", new_content)
-            if not ok:
-                log_func(f"  Could not update Profiles/Config: {werr}")
-
-    # The actual auto-start mechanism: HKCU Run key
-    rtss_exe = os.path.join(install, "RTSS.exe")
-    try:
-        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, _RUN_KEY_PATH, 0,
-                            winreg.KEY_SET_VALUE) as k:
-            if enable:
-                winreg.SetValueEx(k, RTSS_RUN_REG_NAME, 0, winreg.REG_SZ,
-                                  f'"{rtss_exe}"')
-                log_func("  Registered RTSS for Windows startup")
-            else:
-                try:
-                    winreg.DeleteValue(k, RTSS_RUN_REG_NAME)
-                    log_func("  Unregistered RTSS from Windows startup")
-                except FileNotFoundError:
-                    pass
-        return (True, None)
-    except Exception as e:
-        return (False, str(e))
-
-def ensure_rtss_global_hooks_enabled(log_func):
-    """Make sure RTSS global API hook + OSD support are ON in Profiles/Global.
-    These are normally ON by default but may be disabled in some installs.
-    Returns (success, changed, error_msg)."""
-    install = find_rtss_install()
-    if not install:
-        return (False, False, "RTSS not installed")
-
-    content, err = _read_rtss_ini(install, "Global")
-    if err:
-        return (False, False, err)
-
-    new_content = _set_ini_value(content, "Hooking", "EnableHooking", "1")
-    new_content = _set_ini_value(new_content, "OSD", "EnableOSD", "1")
-
-    if new_content == content:
-        return (True, False, None)
-
-    ok, werr = _write_rtss_ini(install, "Global", new_content)
-    if ok:
-        log_func("  Enabled global API hook + OSD support")
-        return (True, True, None)
-    return (False, False, werr)
 
 # ---------------------------------------------------------------------------
 # i18n
@@ -444,29 +206,26 @@ LANG = {
         "tutorial_btn": "📖 Tutorial",
         "log_tutorial_opened": "Tutorial aberto no navegador",
         "dlg_tutorial_missing": "Tutorial não encontrado no pacote do programa.",
-        # RTSS auto-config (Smooth Motion fix for Star Citizen)
+        # RTSS Smooth Motion guide (Star Citizen)
         "rtss_btn": "🎮 Smooth Motion (SC)",
-        "tip_rtss_btn": "Configura o RTSS (RivaTuner) para evitar tela preta no Star Citizen quando você usar Smooth Motion. Ativa a opção 'Microsoft Detours API hooking' automaticamente. Precisa do RTSS instalado (programa separado, gratuito).",
+        "tip_rtss_btn": "Abre o RTSS (RivaTuner) e mostra um guia visual com os 2 passos para configurar o fix do Smooth Motion no Star Citizen (sem tela preta). Você faz os cliques na interface do RTSS, o app só te guia. Precisa do RTSS instalado (programa separado, gratuito).",
         "rtss_dlg_title": "Configurar Smooth Motion (Star Citizen)",
-        "rtss_dlg_confirm": "Isso vai criar/editar o profile do RTSS para o StarCitizen.exe com 'Microsoft Detours' ativo, fix necessário para Smooth Motion não dar tela preta.\n\nContinuar?",
+        "rtss_dlg_confirm": "O app vai abrir o RTSS e te mostrar um guia visual com 2 passos simples para configurar o fix do Smooth Motion (sem tela preta no Star Citizen).\n\nVocê faz os cliques na interface do RTSS — o app só te orienta. Continuar?",
         "rtss_not_found_msg": "RTSS (RivaTuner Statistics Server) não está instalado.\n\nInstale gratuitamente em:\nhttps://www.guru3d.com/download/rtss-rivatuner-statistics-server-download/\n\nAbrir o link agora?",
-        "rtss_already_configured_msg": "✅ Profile do Star Citizen já está configurado corretamente.\nNada a fazer.\n\nPath: {p}",
-        "rtss_profile_created_msg": "✅ Profile do Star Citizen criado com sucesso.\n\nPath: {p}\n\nReiniciar o RTSS agora para aplicar?",
-        "rtss_profile_updated_msg": "✅ Profile do Star Citizen atualizado (Detours ativo).\n\nPath: {p}\n\nReiniciar o RTSS agora para aplicar?",
-        "rtss_write_fail_msg": "❌ Falha ao escrever profile do RTSS:\n{e}\n\nTente executar como Administrador.",
-        "rtss_profile_dir_fail_msg": "❌ Falha ao criar pasta de profiles do RTSS:\n{e}",
-        "log_rtss_starting": "Iniciando configuração do RTSS para Star Citizen...",
+        "log_rtss_starting": "Abrindo RTSS e exibindo guia de configuração...",
         "log_rtss_install_found": "RTSS encontrado em: {p}",
         "log_rtss_no_install": "RTSS não está instalado",
-        "log_rtss_done": "Configuração do RTSS concluída",
-        "log_rtss_running": "RTSS está rodando — restart recomendado",
-        "log_rtss_not_running": "RTSS não está rodando — abra ele manualmente para o fix funcionar",
-        "rtss_autostart_dlg_msg": "Quer que o RTSS inicie automaticamente com o Windows? (recomendado)\n\nAssim ele estará sempre rodando quando você abrir o Star Citizen — sem precisar lembrar de abrir o RTSS antes.\n\nOcupa ~10 MB de RAM em background. Pode desativar depois no Gerenciador de Tarefas → Inicialização.",
-        "log_rtss_autostart_already": "RTSS já estava configurado para iniciar com o Windows",
-        "log_rtss_autostart_enabled": "RTSS configurado para iniciar com o Windows ✓",
-        "log_rtss_autostart_skipped": "Auto-start não configurado (escolha do usuário)",
-        "log_rtss_autostart_failed": "Falha ao configurar auto-start: {e}",
-        "log_rtss_hooks_already_ok": "API hook global do RTSS já estava ativo",
+        "log_rtss_done": "Guia exibido — siga os passos na janela do RTSS",
+        # Visual guide dialog
+        "rtss_guide_dlg_title": "Guia de Configuração — RTSS para Star Citizen",
+        "rtss_guide_intro": "O RTSS foi aberto. Siga os 2 passos abaixo. Você só clica na interface do RTSS — o app não precisa modificar nada no seu sistema (por isso nenhum antivírus reclama).",
+        "rtss_guide_step1_title": "Passo 1 — Adicionar StarCitizen.exe (se ainda não estiver na lista)",
+        "rtss_guide_step1_body": "Na janela do RTSS, na lista da esquerda (<i>Application profile properties</i>), procure por <b>StarCitizen.exe</b>:<br><br>• <b>Se JÁ aparece</b> na lista → pula para o Passo 2.<br>• <b>Se NÃO aparece</b> → clique no botão <b style='color:#4CAF50'>Add</b> (canto inferior esquerdo, verde) → navegue até a pasta do Star Citizen (geralmente <code>...\\StarCitizen\\LIVE\\Bin64\\</code>) → selecione <b>StarCitizen.exe</b> → clique <b>Open</b>.<br><br><b>Bônus opcional:</b> ainda na janela principal, no canto superior esquerdo, marque <b>Start with Windows ON</b> para o RTSS iniciar automático com o PC (o RTSS faz isso sozinho — sem disparar antivírus).",
+        "rtss_guide_step2_title": "Passo 2 — Ativar Microsoft Detours API hooking",
+        "rtss_guide_step2_body": "Com o <b>StarCitizen.exe</b> selecionado na lista da esquerda (fica destacado em azul):<br><br>1. Clique no botão azul <b>Setup</b> (canto inferior direito da lista)<br>2. Na janela que abrir, role até a seção <b>Injection properties</b><br>3. Marque a checkbox ✅ <b>Use Microsoft Detours API hooking</b><br>4. Clique <b>OK</b> para salvar",
+        "rtss_guide_done_title": "✅ Pronto!",
+        "rtss_guide_done_body": "O Smooth Motion no Star Citizen vai funcionar sem tela preta agora. Pode fechar a janela do RTSS — ele continua rodando em background na bandeja do sistema (ícone perto do relógio).",
+        "rtss_guide_close_btn": "Entendi, fechar",
         "tip_donate_pix": "Copia a chave PIX (Brasil) para você colar no app do seu banco. Doação ajuda a manter o projeto vivo!",
         "tip_donate_bep20": "Copia o endereço da carteira BSC/BEP20 (cripto). Aceita USDT, USDC, BTCB, BUSD na rede Binance Smart Chain. NÃO envie Bitcoin nativo.",
         "tip_donate_paypal": "Abre o PayPal no navegador para fazer uma doação por cartão ou conta PayPal. Aceita cartão sem precisar ter conta PayPal.",
@@ -588,27 +347,24 @@ LANG = {
         "dlg_tutorial_missing": "Tutorial not found in program bundle.",
         # RTSS auto-config (Smooth Motion fix for Star Citizen)
         "rtss_btn": "🎮 Smooth Motion (SC)",
-        "tip_rtss_btn": "Configures RTSS (RivaTuner) to prevent black-screen in Star Citizen when using Smooth Motion. Auto-enables 'Microsoft Detours API hooking'. Requires RTSS installed (separate free program).",
+        "tip_rtss_btn": "Opens RTSS (RivaTuner) and shows a visual guide with the 2 steps to set up the Star Citizen Smooth Motion fix (no black-screen). You click in the RTSS UI yourself — the app just guides you. Requires RTSS installed (separate free program).",
         "rtss_dlg_title": "Configure Smooth Motion (Star Citizen)",
-        "rtss_dlg_confirm": "This will create/edit the RTSS profile for StarCitizen.exe with 'Microsoft Detours' enabled — required fix so Smooth Motion doesn't cause a black-screen.\n\nContinue?",
+        "rtss_dlg_confirm": "The app will open RTSS and show a visual guide with 2 simple steps to set up the Smooth Motion fix (no black-screen in Star Citizen).\n\nYou'll click in the RTSS UI yourself — the app just walks you through. Continue?",
         "rtss_not_found_msg": "RTSS (RivaTuner Statistics Server) is not installed.\n\nDownload it free from:\nhttps://www.guru3d.com/download/rtss-rivatuner-statistics-server-download/\n\nOpen the link now?",
-        "rtss_already_configured_msg": "✅ Star Citizen profile is already configured correctly.\nNothing to do.\n\nPath: {p}",
-        "rtss_profile_created_msg": "✅ Star Citizen profile created successfully.\n\nPath: {p}\n\nRestart RTSS now to apply?",
-        "rtss_profile_updated_msg": "✅ Star Citizen profile updated (Detours enabled).\n\nPath: {p}\n\nRestart RTSS now to apply?",
-        "rtss_write_fail_msg": "❌ Failed to write RTSS profile:\n{e}\n\nTry running as Administrator.",
-        "rtss_profile_dir_fail_msg": "❌ Failed to create RTSS profiles directory:\n{e}",
-        "log_rtss_starting": "Starting RTSS configuration for Star Citizen...",
+        "log_rtss_starting": "Opening RTSS and showing setup guide...",
         "log_rtss_install_found": "RTSS found at: {p}",
         "log_rtss_no_install": "RTSS is not installed",
-        "log_rtss_done": "RTSS configuration done",
-        "log_rtss_running": "RTSS is running — restart recommended",
-        "log_rtss_not_running": "RTSS is not running — open it manually for the fix to take effect",
-        "rtss_autostart_dlg_msg": "Want RTSS to start automatically with Windows? (recommended)\n\nThis way it's always running when you launch Star Citizen — no need to remember to open RTSS first.\n\nUses ~10 MB RAM in background. You can disable it later via Task Manager → Startup.",
-        "log_rtss_autostart_already": "RTSS was already configured to start with Windows",
-        "log_rtss_autostart_enabled": "RTSS configured to start with Windows ✓",
-        "log_rtss_autostart_skipped": "Auto-start not configured (user choice)",
-        "log_rtss_autostart_failed": "Failed to configure auto-start: {e}",
-        "log_rtss_hooks_already_ok": "RTSS global API hook was already enabled",
+        "log_rtss_done": "Guide shown — follow the steps in the RTSS window",
+        # Visual guide dialog
+        "rtss_guide_dlg_title": "Setup Guide — RTSS for Star Citizen",
+        "rtss_guide_intro": "RTSS is now open. Follow the 2 steps below. You only click in the RTSS UI — the app doesn't need to modify anything on your system (which is why no antivirus complains).",
+        "rtss_guide_step1_title": "Step 1 — Add StarCitizen.exe (if not already in the list)",
+        "rtss_guide_step1_body": "In the RTSS window, in the left list (<i>Application profile properties</i>), look for <b>StarCitizen.exe</b>:<br><br>• <b>If it's ALREADY there</b> → skip to Step 2.<br>• <b>If it's NOT there</b> → click the <b style='color:#4CAF50'>Add</b> button (bottom-left, green) → browse to your Star Citizen folder (usually <code>...\\StarCitizen\\LIVE\\Bin64\\</code>) → select <b>StarCitizen.exe</b> → click <b>Open</b>.<br><br><b>Optional bonus:</b> still in the main window, top-left corner, toggle <b>Start with Windows ON</b> so RTSS launches automatically with your PC (RTSS does this itself — no AV trigger).",
+        "rtss_guide_step2_title": "Step 2 — Enable Microsoft Detours API hooking",
+        "rtss_guide_step2_body": "With <b>StarCitizen.exe</b> selected in the left list (highlighted blue):<br><br>1. Click the blue <b>Setup</b> button (bottom-right of the list)<br>2. In the window that opens, scroll to the <b>Injection properties</b> section<br>3. Check the ✅ <b>Use Microsoft Detours API hooking</b> checkbox<br>4. Click <b>OK</b> to save",
+        "rtss_guide_done_title": "✅ Done!",
+        "rtss_guide_done_body": "Smooth Motion in Star Citizen will now work without the black-screen. You can close the RTSS window — it stays running in background in the system tray (icon near the clock).",
+        "rtss_guide_close_btn": "Got it, close",
         "tip_donate_pix": "Copies the PIX key (Brazil) so you can paste it in your bank's app. Donations keep the project alive!",
         "tip_donate_bep20": "Copies the BSC/BEP20 wallet address (crypto). Accepts USDT, USDC, BTCB, BUSD on Binance Smart Chain. DO NOT send native Bitcoin.",
         "tip_donate_paypal": "Opens PayPal in your browser to make a donation by card or PayPal account. Accepts card without needing an account.",
@@ -1105,11 +861,101 @@ class NPIInfoDialog(QtWidgets.QDialog):
         btns.addWidget(close_btn)
         layout.addLayout(btns)
 
+class RTSSSetupGuideDialog(QtWidgets.QDialog):
+    """Visual step-by-step guide for configuring RTSS for the Star Citizen
+    Smooth Motion fix. Shown after the app opens the RTSS GUI so the user
+    can follow along."""
+    def __init__(self, parent, t):
+        super().__init__(parent)
+        self.setWindowTitle(t("rtss_guide_dlg_title"))
+        self.resize(900, 720)
+
+        outer = QtWidgets.QVBoxLayout(self)
+
+        # Scroll area (the content is tall — two annotated screenshots)
+        scroll = QtWidgets.QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        content = QtWidgets.QWidget()
+        layout = QtWidgets.QVBoxLayout(content)
+        layout.setSpacing(12)
+        layout.setContentsMargins(16, 16, 16, 16)
+
+        # Intro
+        intro = QtWidgets.QLabel(t("rtss_guide_intro"))
+        intro.setWordWrap(True)
+        intro.setStyleSheet("font-size: 13px;")
+        layout.addWidget(intro)
+
+        # Step 1 — add StarCitizen.exe profile + Start with Windows toggle
+        step1_title = QtWidgets.QLabel(t("rtss_guide_step1_title"))
+        step1_title.setStyleSheet("font-size: 14px; font-weight: bold; color: #4CAF50; margin-top: 8px;")
+        layout.addWidget(step1_title)
+
+        step1_body = QtWidgets.QLabel(t("rtss_guide_step1_body"))
+        step1_body.setWordWrap(True)
+        step1_body.setTextFormat(QtCore.Qt.TextFormat.RichText)
+        layout.addWidget(step1_body)
+
+        self._add_screenshot(layout, "rtss_guide_add_star_citizen.png")
+
+        # Step 2 — enable Detours in Setup
+        step2_title = QtWidgets.QLabel(t("rtss_guide_step2_title"))
+        step2_title.setStyleSheet("font-size: 14px; font-weight: bold; color: #4CAF50; margin-top: 16px;")
+        layout.addWidget(step2_title)
+
+        step2_body = QtWidgets.QLabel(t("rtss_guide_step2_body"))
+        step2_body.setWordWrap(True)
+        step2_body.setTextFormat(QtCore.Qt.TextFormat.RichText)
+        layout.addWidget(step2_body)
+
+        self._add_screenshot(layout, "rtss_guide_detours.png")
+
+        # Outro
+        outro_title = QtWidgets.QLabel(t("rtss_guide_done_title"))
+        outro_title.setStyleSheet("font-size: 14px; font-weight: bold; color: #4dabff; margin-top: 16px;")
+        layout.addWidget(outro_title)
+
+        outro_body = QtWidgets.QLabel(t("rtss_guide_done_body"))
+        outro_body.setWordWrap(True)
+        outro_body.setTextFormat(QtCore.Qt.TextFormat.RichText)
+        layout.addWidget(outro_body)
+
+        layout.addStretch()
+        scroll.setWidget(content)
+        outer.addWidget(scroll)
+
+        # Close button
+        btn_row = QtWidgets.QHBoxLayout()
+        btn_row.addStretch()
+        close_btn = QtWidgets.QPushButton(t("rtss_guide_close_btn"))
+        close_btn.setMinimumWidth(120)
+        close_btn.clicked.connect(self.accept)
+        btn_row.addWidget(close_btn)
+        outer.addLayout(btn_row)
+
+    def _add_screenshot(self, layout, filename):
+        """Load PNG via resource_path so it works in dev and bundled .exe."""
+        path = resource_path(filename)
+        label = QtWidgets.QLabel()
+        label.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        if os.path.exists(path):
+            pix = QtGui.QPixmap(path)
+            # Scale down if wider than 820px so it fits comfortably
+            if pix.width() > 820:
+                pix = pix.scaledToWidth(820, QtCore.Qt.TransformationMode.SmoothTransformation)
+            label.setPixmap(pix)
+            label.setStyleSheet("border: 1px solid #444; padding: 4px; background: #1a1a1a;")
+        else:
+            label.setText(f"[Screenshot missing: {filename}]")
+            label.setStyleSheet("color: #c80; padding: 12px;")
+        layout.addWidget(label)
+
 # ---------------------------------------------------------------------------
 # Main window
 # ---------------------------------------------------------------------------
 class DLSSOverrideApp(QtWidgets.QMainWindow):
-    APP_VERSION = "2.6"
+    APP_VERSION = "2.6.1"
     TESTED_AGAINST_NVAPP = "11.0.7"
 
     def __init__(self):
@@ -1564,9 +1410,16 @@ class DLSSOverrideApp(QtWidgets.QMainWindow):
         self.log(self._t("log_tutorial_opened"))
 
     def run_rtss_setup(self):
-        """Auto-config RTSS profile for Star Citizen with Microsoft Detours
-        enabled — required so NVIDIA Smooth Motion doesn't cause a black screen."""
-        # Step 1: confirm with user
+        """Open RTSS and show the user a visual step-by-step guide
+        for configuring the Star Citizen Smooth Motion fix.
+
+        v2.6.1 design note: prior versions tried to write the per-game profile
+        and HKCU Run key directly. Both required admin (the Profiles dir is
+        not user-writable) and the Run key write triggered behavioral AV
+        detection (Kaspersky PDM:Trojan.Win32.Generic). The new flow defers
+        all writes to RTSS itself — when the user clicks RTSS's UI controls,
+        the signed RTSS binary makes the same changes and AVs don't flag it."""
+        # Confirm with user
         reply = QtWidgets.QMessageBox.question(
             self, self._t("rtss_dlg_title"), self._t("rtss_dlg_confirm"),
             QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
@@ -1576,7 +1429,7 @@ class DLSSOverrideApp(QtWidgets.QMainWindow):
         self.log("=" * 50)
         self.log(self._t("log_rtss_starting"))
 
-        # Step 2: detect RTSS
+        # Detect RTSS install
         install = find_rtss_install()
         if not install:
             self.log(self._t("log_rtss_no_install"))
@@ -1589,58 +1442,13 @@ class DLSSOverrideApp(QtWidgets.QMainWindow):
             return
         self.log(self._t("log_rtss_install_found", p=install))
 
-        # Step 3: configure Star Citizen profile (UseDetours=1)
-        ok, msg_key, extra = configure_rtss_for_sc(self.log)
+        # Open RTSS so it is in front of the user
+        launch_rtss(self.log)
 
-        if not ok:
-            if msg_key == "rtss_write_fail":
-                msg = self._t("rtss_write_fail_msg", e=extra)
-            else:
-                msg = self._t("rtss_profile_dir_fail_msg", e=extra)
-            QtWidgets.QMessageBox.critical(self, self._t("dlg_error_title"), msg)
-            self.log("=" * 50)
-            return
+        # Show step-by-step visual guide
+        dlg = RTSSSetupGuideDialog(self, self._t)
+        dlg.exec()
 
-        # Step 4: ensure global API hook + OSD are ON (silent unless changed)
-        hooks_ok, hooks_changed, _ = ensure_rtss_global_hooks_enabled(self.log)
-        if hooks_ok and not hooks_changed:
-            self.log("  " + self._t("log_rtss_hooks_already_ok"))
-
-        # Step 5: offer auto-start with Windows (only if not already enabled)
-        if not is_rtss_autostart_enabled():
-            r = QtWidgets.QMessageBox.question(
-                self, self._t("rtss_dlg_title"),
-                self._t("rtss_autostart_dlg_msg"),
-                QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-            if r == QtWidgets.QMessageBox.StandardButton.Yes:
-                as_ok, as_err = ensure_rtss_starts_with_windows(self.log, enable=True)
-                if not as_ok:
-                    self.log("  " + self._t("log_rtss_autostart_failed", e=as_err))
-                else:
-                    self.log("  " + self._t("log_rtss_autostart_enabled"))
-            else:
-                self.log("  " + self._t("log_rtss_autostart_skipped"))
-        else:
-            self.log("  " + self._t("log_rtss_autostart_already"))
-
-        # Step 6: show result + ask to restart RTSS (only if profile changed)
-        if msg_key == "rtss_already_configured":
-            QtWidgets.QMessageBox.information(
-                self, self._t("rtss_dlg_title"),
-                self._t("rtss_already_configured_msg", p=extra))
-        else:
-            msg_text = self._t(f"{msg_key}_msg", p=extra)
-            running = is_rtss_running()
-            self.log(self._t("log_rtss_running" if running else "log_rtss_not_running"))
-            if running:
-                r = QtWidgets.QMessageBox.question(
-                    self, self._t("rtss_dlg_title"), msg_text,
-                    QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                if r == QtWidgets.QMessageBox.StandardButton.Yes:
-                    restart_rtss(self.log)
-            else:
-                QtWidgets.QMessageBox.information(
-                    self, self._t("rtss_dlg_title"), msg_text)
         self.log(self._t("log_rtss_done"))
         self.log("=" * 50)
 

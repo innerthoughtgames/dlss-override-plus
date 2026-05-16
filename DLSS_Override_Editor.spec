@@ -2,13 +2,15 @@
 
 
 a = Analysis(
-    ['dlss_override_plus_v2.6.py'],
+    ['dlss_override_plus_v2.6.1.py'],
     pathex=[],
     binaries=[],
     datas=[
         ('itg.ico', '.'),
         ('itg.png', '.'),
         ('qr_pix.png', '.'),
+        ('rtss_guide_add_star_citizen.png', '.'),
+        ('rtss_guide_detours.png', '.'),
         ('COMO_USAR_STANDALONE.html', '.'),
     ],
     hiddenimports=[],
@@ -27,7 +29,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='dlss_override_plus_v2.6',
+    name='dlss_override_plus_v2.6.1',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
