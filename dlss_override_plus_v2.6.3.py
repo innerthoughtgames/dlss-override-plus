@@ -193,7 +193,7 @@ LANG = {
         "tip_sl_scan": "Lê o seu arquivo e preenche o campo com a maior versão DLSS já presente. Sempre seguro usar esse valor.",
         "tip_patch_fp": "Edita um segundo arquivo da NVIDIA que controla como JOGOS NOVOS detectados começam. Sem isso, jogos novos virão com DLSS travado de novo. Mantenha ativo.",
         "tip_readonly_cb": "No fim do processo, marca o arquivo como 'somente leitura' para a NVIDIA App não desfazer suas mudanças. Importante: se for instalar jogo novo depois, precisa desmarcar primeiro (botão 'Destravar').",
-        "tip_dlss_indicator": "Mostra um pequeno texto verde no canto da tela em jogos com DLSS ativo, indicando que está funcionando. REQUER abrir o programa como Administrador (clique direito no .exe → 'Executar como administrador').",
+        "tip_dlss_indicator": "Mostra um pequeno texto verde no canto da tela em jogos com DLSS ativo, indicando que está funcionando. Marque + 'Processar Arquivo' para LIGAR. Desmarque + 'Processar Arquivo' para DESLIGAR. REQUER abrir o programa como Administrador (clique direito no .exe → 'Executar como administrador').",
         "tip_preview": "Mostra no log o que SERIA mudado, sem gravar nada. 100% seguro — só leitura. Use antes de processar se quiser ter certeza.",
         "tip_process": "BOTÃO PRINCIPAL. Aplica todas as mudanças marcadas acima ao arquivo da NVIDIA. Cria backup automático antes. Depois clique em 'Reiniciar Serviços NVIDIA' para a NVIDIA App carregar.",
         "tip_revert": "Desfaz TUDO que o programa fez. Restaura do backup automático. Use se algo deu errado ou quiser voltar ao original.",
@@ -333,7 +333,7 @@ LANG = {
         "tip_sl_scan": "Reads your file and fills the field with the highest DLSS version already present. Always safe to use this value.",
         "tip_patch_fp": "Edits a second NVIDIA file that controls how NEWLY-DETECTED games start. Without this, future-installed games will come with DLSS locked again. Keep ON.",
         "tip_readonly_cb": "After processing, marks the file as 'read-only' so NVIDIA App can't undo your changes. Important: if you install a NEW game later, you need to uncheck this first (use the 'Make Writable' button).",
-        "tip_dlss_indicator": "Shows a small green text in the screen corner in games with DLSS active, indicating it's working. REQUIRES opening the program as Administrator (right-click the .exe → 'Run as administrator').",
+        "tip_dlss_indicator": "Shows a small green text in the screen corner in games with DLSS active, indicating it's working. Check + 'Process File' to TURN ON. Uncheck + 'Process File' to TURN OFF. REQUIRES opening the program as Administrator (right-click the .exe → 'Run as administrator').",
         "tip_preview": "Shows in the log what WOULD change, without saving anything. 100% safe — read-only. Use before processing if you want to double-check.",
         "tip_process": "MAIN BUTTON. Applies all the changes selected above to NVIDIA's file. Creates an automatic backup first. After clicking, use 'Restart NVIDIA Services' so NVIDIA App loads the changes.",
         "tip_revert": "Undoes EVERYTHING this app did. Restores from the automatic backup. Use if something went wrong or you want to return to NVIDIA's original.",
@@ -714,15 +714,33 @@ def patch_fingerprint_db(fp_path, enabled_keys, log_func):
 # NGX registry tweaks
 # ---------------------------------------------------------------------------
 def set_dlss_indicator(enabled, log_func):
-    """ShowDlssIndicator: 0x400 (1024) = on-screen indicator, 0x0 = off."""
+    """ShowDlssIndicator: 0x400 (1024) = on-screen indicator, 0x0 = off.
+    Reads the current value first and skips the write if it already matches,
+    so unprivileged runs don't fail when nothing actually needs to change."""
+    import winreg
+    desired = 0x400 if enabled else 0x0
+    key_path = r"SOFTWARE\NVIDIA Corporation\Global\NGXCore"
+
+    # Read current (no admin needed)
+    current = None
     try:
-        import winreg
-        key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
-                             r"SOFTWARE\NVIDIA Corporation\Global\NGXCore",
-                             0, winreg.KEY_SET_VALUE | winreg.KEY_WOW64_64KEY)
-        winreg.SetValueEx(key, "ShowDlssIndicator", 0, winreg.REG_DWORD,
-                          0x400 if enabled else 0x0)
-        winreg.CloseKey(key)
+        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key_path, 0,
+                            winreg.KEY_READ | winreg.KEY_WOW64_64KEY) as rk:
+            current, _ = winreg.QueryValueEx(rk, "ShowDlssIndicator")
+    except FileNotFoundError:
+        current = 0  # value/key absent — effectively off
+    except OSError:
+        current = None  # couldn't read; fall through and attempt write
+
+    if current == desired:
+        log_func(f"NGX indicator already {'ON (0x400)' if enabled else 'OFF (0x0)'} — no change")
+        return True
+
+    # Write (requires admin)
+    try:
+        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, key_path, 0,
+                            winreg.KEY_SET_VALUE | winreg.KEY_WOW64_64KEY) as wk:
+            winreg.SetValueEx(wk, "ShowDlssIndicator", 0, winreg.REG_DWORD, desired)
         log_func(f"NGXCore ShowDlssIndicator set to {'ON (0x400)' if enabled else 'OFF (0x0)'}")
         return True
     except PermissionError:
@@ -965,7 +983,7 @@ class RTSSSetupGuideDialog(QtWidgets.QDialog):
 # Main window
 # ---------------------------------------------------------------------------
 class DLSSOverrideApp(QtWidgets.QMainWindow):
-    APP_VERSION = "2.6.2"
+    APP_VERSION = "2.6.3"
     TESTED_AGAINST_NVAPP = "11.0.7"
 
     def __init__(self):
@@ -1560,9 +1578,11 @@ class DLSSOverrideApp(QtWidgets.QMainWindow):
             self.log("--- fingerprint.db ---")
             patch_fingerprint_db(fp_path, enabled, self.log)
 
-        if self.dlss_indicator_cb.isChecked():
-            self.log("--- NGX registry ---")
-            set_dlss_indicator(True, self.log)
+        # Always sync the registry to the checkbox state (set_dlss_indicator
+        # skips the write if already correct, so non-admin users only get the
+        # "need admin" error when an actual change is required).
+        self.log("--- NGX registry ---")
+        set_dlss_indicator(self.dlss_indicator_cb.isChecked(), self.log)
 
         if modified:
             self.session_processed = True

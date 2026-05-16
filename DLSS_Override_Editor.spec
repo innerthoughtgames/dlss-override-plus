@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['dlss_override_plus_v2.6.2.py'],
+    ['dlss_override_plus_v2.6.3.py'],
     pathex=[],
     binaries=[],
     datas=[
@@ -29,7 +29,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='dlss_override_plus_v2.6.2',
+    name='dlss_override_plus_v2.6.3',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
