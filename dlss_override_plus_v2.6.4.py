@@ -983,7 +983,7 @@ class RTSSSetupGuideDialog(QtWidgets.QDialog):
 # Main window
 # ---------------------------------------------------------------------------
 class DLSSOverrideApp(QtWidgets.QMainWindow):
-    APP_VERSION = "2.6.3"
+    APP_VERSION = "2.6.4"
     TESTED_AGAINST_NVAPP = "11.0.7"
 
     def __init__(self):
@@ -1586,8 +1586,15 @@ class DLSSOverrideApp(QtWidgets.QMainWindow):
 
         if modified:
             self.session_processed = True
-            if self.readonly_checkbox.isChecked():
-                set_read_only(file_path, True, self.log)
+
+        # Apply the read-only state regardless of whether the JSON was modified.
+        # Intent: the checkbox means "I want the file locked" — if the file already
+        # has all keys at target values (modified=False) but the user checked the box,
+        # they still want it locked. Previously this only ran when modified=True,
+        # which silently failed to lock for users who re-ran the app after their
+        # first successful processing.
+        if self.readonly_checkbox.isChecked():
+            set_read_only(file_path, True, self.log)
 
         self.update_file_status()
         self.log("=" * 50)
