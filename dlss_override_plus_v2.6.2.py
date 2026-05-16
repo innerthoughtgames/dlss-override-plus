@@ -226,6 +226,7 @@ LANG = {
         "rtss_guide_done_title": "✅ Pronto!",
         "rtss_guide_done_body": "O Smooth Motion no Star Citizen vai funcionar sem tela preta agora. Pode fechar a janela do RTSS — ele continua rodando em background na bandeja do sistema (ícone perto do relógio).",
         "rtss_guide_close_btn": "Entendi, fechar",
+        "rtss_guide_download_link": "💡 Precisa instalar ou atualizar o RTSS? Baixe gratuitamente em: <a href=\"{url}\" style=\"color:#4dabff\">Guru3D</a>",
         "tip_donate_pix": "Copia a chave PIX (Brasil) para você colar no app do seu banco. Doação ajuda a manter o projeto vivo!",
         "tip_donate_bep20": "Copia o endereço da carteira BSC/BEP20 (cripto). Aceita USDT, USDC, BTCB, BUSD na rede Binance Smart Chain. NÃO envie Bitcoin nativo.",
         "tip_donate_paypal": "Abre o PayPal no navegador para fazer uma doação por cartão ou conta PayPal. Aceita cartão sem precisar ter conta PayPal.",
@@ -365,6 +366,7 @@ LANG = {
         "rtss_guide_done_title": "✅ Done!",
         "rtss_guide_done_body": "Smooth Motion in Star Citizen will now work without the black-screen. You can close the RTSS window — it stays running in background in the system tray (icon near the clock).",
         "rtss_guide_close_btn": "Got it, close",
+        "rtss_guide_download_link": "💡 Need to install or update RTSS? Download it free from: <a href=\"{url}\" style=\"color:#4dabff\">Guru3D</a>",
         "tip_donate_pix": "Copies the PIX key (Brazil) so you can paste it in your bank's app. Donations keep the project alive!",
         "tip_donate_bep20": "Copies the BSC/BEP20 wallet address (crypto). Accepts USDT, USDC, BTCB, BUSD on Binance Smart Chain. DO NOT send native Bitcoin.",
         "tip_donate_paypal": "Opens PayPal in your browser to make a donation by card or PayPal account. Accepts card without needing an account.",
@@ -921,6 +923,14 @@ class RTSSSetupGuideDialog(QtWidgets.QDialog):
         outro_body.setTextFormat(QtCore.Qt.TextFormat.RichText)
         layout.addWidget(outro_body)
 
+        # Download link (always visible — useful if user needs to reinstall/update RTSS)
+        download_label = QtWidgets.QLabel(t("rtss_guide_download_link").format(url=RTSS_DOWNLOAD_URL))
+        download_label.setWordWrap(True)
+        download_label.setTextFormat(QtCore.Qt.TextFormat.RichText)
+        download_label.setOpenExternalLinks(True)
+        download_label.setStyleSheet("color: #888; font-size: 12px; margin-top: 12px; padding: 8px; border-top: 1px solid #333;")
+        layout.addWidget(download_label)
+
         layout.addStretch()
         scroll.setWidget(content)
         outer.addWidget(scroll)
@@ -955,7 +965,7 @@ class RTSSSetupGuideDialog(QtWidgets.QDialog):
 # Main window
 # ---------------------------------------------------------------------------
 class DLSSOverrideApp(QtWidgets.QMainWindow):
-    APP_VERSION = "2.6.1"
+    APP_VERSION = "2.6.2"
     TESTED_AGAINST_NVAPP = "11.0.7"
 
     def __init__(self):
