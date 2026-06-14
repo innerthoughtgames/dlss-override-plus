@@ -345,8 +345,8 @@
 <h2 id="smooth-motion">🎮 Star Citizen — DLSS 4.5</h2>
 
 <div class="info">
-  <span data-pt><b>Cenário atual:</b> A meta em 2026 é DLSS 4.5. Testes profundos da comunidade no Reddit/Spectrum.</span>
-  <span data-en><b>Current meta:</b> 2026's meta is DLSS 4.5. Based on deep community testing on Reddit/Spectrum.</span>
+  <span data-pt><b>Cenário atual:</b> A meta atual é DLSS 4.5. Testes profundos da comunidade no Reddit/Spectrum.</span>
+  <span data-en><b>Current meta:</b> The current meta is DLSS 4.5. Based on deep community testing on Reddit/Spectrum.</span>
 </div>
 
 <h3 data-pt>Com .dll DLSS 4.5 (mais novas)</h3>
@@ -363,11 +363,26 @@
   <td data-pt>RTX 4080 / 4090 — anti-aliasing perfeito</td><td data-en>RTX 4080 / 4090 — perfect anti-aliasing</td>
 </tr>
 <tr>
-  <td data-pt>DLSS Quality / Performance</td><td data-en>DLSS Quality / Performance</td>
+  <td data-pt>DLSS Quality / Balanced</td><td data-en>DLSS Quality / Balanced</td>
+  <td><b>K</b></td>
+  <td data-pt>Melhor imagem — Transformer 4.0, padrão da NVIDIA p/ Quality e Balanced</td><td data-en>Best image — 4.0 Transformer, NVIDIA's default for Quality and Balanced</td>
+</tr>
+<tr>
+  <td data-pt>DLSS Performance</td><td data-en>DLSS Performance</td>
   <td><b>M</b></td>
-  <td data-pt>Quando precisa de FPS — corrige shimmering</td><td data-en>When you need FPS — fixes shimmering</td>
+  <td data-pt>Quando precisa de FPS — corrige shimmering (Transformer 2ª geração)</td><td data-en>When you need FPS — fixes shimmering (2nd-gen Transformer)</td>
+</tr>
+<tr>
+  <td data-pt>DLSS Ultra Performance (4K)</td><td data-en>DLSS Ultra Performance (4K)</td>
+  <td><b>L</b></td>
+  <td data-pt>Máximo de FPS — Transformer 2ª geração (RTX 40/50)</td><td data-en>Max FPS — 2nd-gen Transformer (RTX 40/50)</td>
 </tr>
 </table>
+
+<div class="danger">
+  <span data-pt>🔴 <b>Vale testar — Preset L vs M (DLSS 4.5):</b> esses dois presets são <b>novos</b> e têm <b>menos shimmering e ghosting</b> que os antigos. Teste <b>L vs M</b> no seu PC pra ver qual te dá mais FPS. No momento estamos com <b>bons resultados em DLSS Quality + Preset L</b> — mas <b>teste o M também</b> e fique com o que ficar melhor pra você. <i>(A tabela acima é o padrão oficial da NVIDIA; na prática, experimente.)</i></span>
+  <span data-en>🔴 <b>Worth testing — Preset L vs M (DLSS 4.5):</b> these two presets are <b>new</b> and have <b>less shimmering and ghosting</b> than the older ones. Test <b>L vs M</b> on your PC to see which gives more FPS. Right now we're getting <b>good results with DLSS Quality + Preset L</b> — but <b>test M too</b> and keep whichever looks/runs best for you. <i>(The table above is NVIDIA's official default; in practice, experiment.)</i></span>
+</div>
 
 <h3 data-pt>Com .dll antigas (3.7/3.8)</h3>
 <h3 data-en>With older .dlls (3.7/3.8)</h3>
@@ -398,8 +413,10 @@ OverrideAppId = true
 
 [DLSSPresets]
 DLAA = K
-Quality = M
+Quality = K
+Balanced = K
 Performance = M
+UltraPerformance = L
 </pre>
 
 <h3 data-pt>Configurações in-game</h3>

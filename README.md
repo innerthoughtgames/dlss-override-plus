@@ -85,14 +85,18 @@ The donation sidebar (right) shows an embedded PIX QR code and one-click copy bu
 
 ## 🎮 Star Citizen — DLSS 4.5 Tuning
 
-The 2026 meta for Star Citizen, based on deep community testing (Reddit / Spectrum):
+The current meta for Star Citizen, based on deep community testing (Reddit / Spectrum):
 
 ### With DLSS 4.5 DLLs (latest)
 
 | Scenario | Preset | When to use |
 |---|---|---|
 | **DLAA (max native quality)** | **K** | RTX 4080 / 4090 — perfect anti-aliasing, pushes load to GPU to avoid the CPU bottleneck |
-| **DLSS Quality / Performance** | **M** | When you need FPS — fixes the chronic ship-shimmering in distant objects |
+| **DLSS Quality / Balanced** | **K** | Best image quality — Preset K (DLSS 4.0 Transformer) is NVIDIA's default/best for Quality and Balanced |
+| **DLSS Performance** | **M** | When you need FPS — 2nd-gen Transformer tuned for Performance mode; fixes ship-shimmering in distant objects |
+| **DLSS Ultra Performance** | **L** | Max FPS (e.g. 4K) — 2nd-gen Transformer tuned for Ultra Performance; the big-FPS pick on RTX 40/50 |
+
+> 🔴 **Worth testing — Preset L vs M (DLSS 4.5):** these two new presets have **less shimmering and ghosting** than the older ones. Test **L vs M** on your rig to see which gives more FPS. Right now we're getting good results with **DLSS Quality + Preset L** — but **test M too** and keep whichever looks/runs best. *(The table above is NVIDIA's official default mapping; in practice, experiment.)*
 
 ### With older DLSS 3.7 / 3.8 DLLs
 
@@ -110,9 +114,11 @@ OverrideAutoMultiple = true
 OverrideAppId = true
 
 [DLSSPresets]
-DLAA = K        ; on v3.7 use C
-Quality = M     ; on v3.7 use E
-Performance = M
+DLAA = K            ; on v3.7 use C
+Quality = K         ; on v3.7 use E
+Balanced = K
+Performance = M     ; Preset M is tuned for Performance mode
+UltraPerformance = L ; Preset L is tuned for 4K Ultra Performance
 ```
 
 ### In-game settings
@@ -141,6 +147,7 @@ regardless of what the JSON flags say:
 - **MFG 3x/4x/6x** — RTX 50 only
 - **DLSS-FG 2x** — RTX 40 and 50
 - **Super Resolution + Ray Reconstruction** — all RTX cards
+- **DLSS 4.5 Presets M / L (FP8 Transformer)** — RTX 40/50 only; on RTX 20/30 stay on Preset K (no FP8 hardware)
 
 The tool sets the flags anyway. The runtime caps to what your hardware supports.
 
@@ -188,7 +195,7 @@ What it actually does is described above (and in the open source code in this re
   yourself at https://www.virustotal.com/. The source code is also in this repo for anyone
   to audit.
 - **Run from source** — clone the repo and run `python dlss_override_plus_v2.7.3.py` (requires
-  Python 3.10+ and `pip install PyQt6 qrcode[pil]`). This skips PyInstaller entirely.
+  Python 3.10+ and `pip install PyQt6`). This skips PyInstaller entirely.
 - **Build your own .exe** — instructions below in the "Building from source" section.
 - **Add an exception** in Windows Defender if you trust the scan.
 
@@ -217,10 +224,10 @@ The in-app **"Driver-side overrides (NPI)"** button shows the full table.
 ```bash
 git clone https://github.com/innerthoughtgames/dlss-override-plus.git
 cd dlss-override-plus
-pip install PyQt6 pyinstaller qrcode[pil]
+pip install PyQt6 pyinstaller
 
 # Run directly
-python "DLSS Override+.py"
+python dlss_override_plus_v2.7.3.py
 
 # Or build a .exe
 python -m PyInstaller --clean --noconfirm DLSS_Override_Editor.spec
@@ -245,7 +252,7 @@ silently reverting your changes when it syncs with NVIDIA's cloud profile DB.
 
 ```
 .
-├── DLSS Override+.py            # Main app (PyQt6)
+├── dlss_override_plus_v2.7.3.py # Main app (PyQt6)
 ├── DLSS_Override_Editor.spec    # PyInstaller build config
 ├── COMO_USAR.html               # End-user guide (bilingual PT/EN)
 ├── README.md                    # This file
