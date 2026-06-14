@@ -258,12 +258,14 @@ LANG = {
         "dlg_process_sl_extra": "mais bump da versão Streamline SDK ",
         "dlg_revert_title": "Confirmar Reversão",
         "dlg_revert_msg": "Restaurar o arquivo original do backup?\n\n{p}",
-        # Smooth Motion close reminder
-        "reminder_title": "Lembrete importante — Star Citizen",
+        # Close dialog: Smooth Motion reminder + heartfelt support
+        "close_title": "Antes de fechar 💙",
         "reminder_msg": "Você já ativou o Smooth Motion?\n\nPra ter o ganho de FPS no Star Citizen são 2 coisas: (1) ligar Smooth Motion = On no NVIDIA App, e (2) aplicar o fix do RTSS pelo botão 🎮 Smooth Motion (SC). Sem isso o Smooth Motion não funciona (tela preta) — e é o maior ganho de FPS do jogo.",
         "reminder_img_caption": "É assim que fica: NVIDIA App → Graphics → Star Citizen → Smooth Motion = On",
         "reminder_open_guide": "Abrir guia do Smooth Motion (RTSS)",
-        "reminder_done": "Já ativei — pode fechar",
+        "support_msg": "Esse programa é feito por uma pessoa só, nas horas vagas — são muitas horas de desenvolvimento e testes pra deixar tudo funcionando, e ele é (e sempre vai ser) gratuito.\n\nSe ele te ajudou a ganhar FPS e curtir mais seus jogos, considere apoiar pra manter o projeto vivo. 💙 (Em breve tem vídeo tutorial também!)\n\nSem pressão — qualquer valor, de coração, já ajuda muito. E se não der, tá tudo bem: aproveita! 🎮",
+        "support_btn": "❤️ Apoiar o projeto",
+        "close_btn": "Fechar",
         # NPI Info dialog
         "npi_title": "Overrides do driver (nvidiaProfileInspector)",
         "npi_intro": "O ApplicationStorage.json controla quais toggles DLSS aparecem na interface\nda NVIDIA App. Para forçar os valores que o driver aplica em tempo de execução\n(principalmente o multiplicador do MFG e o Preset K/J do DLSS), use esses\nIDs no nvidiaProfileInspector. As edições do JSON e os IDs do driver são\ncamadas independentes — ambos devem estar configurados para controle total.",
@@ -402,12 +404,14 @@ LANG = {
         "dlg_process_sl_extra": "plus Streamline SDK version bump ",
         "dlg_revert_title": "Confirm Revert",
         "dlg_revert_msg": "Restore the original file from backup?\n\n{p}",
-        # Smooth Motion close reminder
-        "reminder_title": "Important reminder — Star Citizen",
+        # Close dialog: Smooth Motion reminder + heartfelt support
+        "close_title": "Before you close 💙",
         "reminder_msg": "Did you already enable Smooth Motion?\n\nFor the FPS gain in Star Citizen you need 2 things: (1) set Smooth Motion = On in the NVIDIA App, and (2) apply the RTSS fix via the 🎮 Smooth Motion (SC) button. Without it Smooth Motion won't work (black screen) — and it's the biggest FPS gain in the game.",
         "reminder_img_caption": "This is what it looks like: NVIDIA App → Graphics → Star Citizen → Smooth Motion = On",
         "reminder_open_guide": "Open the Smooth Motion guide (RTSS)",
-        "reminder_done": "Already enabled it — close",
+        "support_msg": "This program is made by one person, in their spare time — many hours of development and testing to keep everything working, and it is (and always will be) free.\n\nIf it helped you gain FPS and enjoy your games more, please consider supporting it to keep the project alive. 💙 (A video tutorial is coming soon, too!)\n\nNo pressure — any amount, from the heart, helps a lot. And if you can't, that's totally fine: enjoy! 🎮",
+        "support_btn": "❤️ Support the project",
+        "close_btn": "Close",
         # NPI Info dialog
         "npi_title": "Driver-side overrides (nvidiaProfileInspector)",
         "npi_intro": "ApplicationStorage.json gates which DLSS toggles appear in the\nNVIDIA App UI. To force the values the driver applies at runtime\n(especially MFG multiplier and DLSS Preset K/J), use these IDs in\nnvidiaProfileInspector. The JSON edits and these driver IDs are\nindependent layers — both should match for full control.",
@@ -968,48 +972,69 @@ class RTSSSetupGuideDialog(QtWidgets.QDialog):
             label.setStyleSheet("color: #c80; padding: 12px;")
         layout.addWidget(label)
 
-class SmoothMotionReminderDialog(QtWidgets.QDialog):
-    """Gentle close-time reminder to enable Smooth Motion for Star Citizen.
-    Purely informational — no reboot, no system changes. Shows what
-    'Smooth Motion = On' looks like in the NVIDIA App. done(1) = open the
-    Smooth Motion/RTSS guide now; done(0) = just close."""
-    def __init__(self, parent=None):
+class CloseDialog(QtWidgets.QDialog):
+    """Shown when the app is closing. Always shows a heartfelt thank-you + a gentle,
+    non-pushy support nudge. If the file was processed this session, it ALSO shows the
+    Smooth Motion reminder (the most-forgotten step for Star Citizen) with a photo of
+    'Smooth Motion = On' in the NVIDIA App. Purely informational — no reboot, no changes.
+    done(1) = open the Smooth Motion/RTSS guide; done(2) = support/donate; done(0) = just close."""
+    def __init__(self, parent=None, show_smooth_motion=False):
         super().__init__(parent)
         t = getattr(parent, "_t", None) or (lambda k, **kw: k)
-        self.setWindowTitle(t("reminder_title"))
+        self.setWindowTitle(t("close_title"))
         self.setMinimumWidth(560)
         layout = QtWidgets.QVBoxLayout(self)
-        msg = QtWidgets.QLabel(t("reminder_msg"))
-        msg.setWordWrap(True)
-        layout.addWidget(msg)
-        img_path = resource_path("smooth_motion_on.png")
-        if os.path.exists(img_path):
-            pic = QtWidgets.QLabel()
-            pic.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-            pic.setPixmap(QtGui.QPixmap(img_path).scaledToWidth(
-                520, QtCore.Qt.TransformationMode.SmoothTransformation))
-            pic.setStyleSheet("border: 1px solid #444; padding: 4px; background: #1a1a1a;")
-            layout.addWidget(pic)
-            cap = QtWidgets.QLabel(t("reminder_img_caption"))
-            cap.setStyleSheet("color: #888; font-size: 11px;")
-            cap.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
-            cap.setWordWrap(True)
-            layout.addWidget(cap)
+        layout.setSpacing(10)
+
+        # Smooth Motion reminder (only when the file was processed this session)
+        if show_smooth_motion:
+            sm = QtWidgets.QLabel(t("reminder_msg"))
+            sm.setWordWrap(True)
+            layout.addWidget(sm)
+            img_path = resource_path("smooth_motion_on.png")
+            if os.path.exists(img_path):
+                pic = QtWidgets.QLabel()
+                pic.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+                pic.setPixmap(QtGui.QPixmap(img_path).scaledToWidth(
+                    480, QtCore.Qt.TransformationMode.SmoothTransformation))
+                pic.setStyleSheet("border: 1px solid #444; padding: 4px; background: #1a1a1a;")
+                layout.addWidget(pic)
+                cap = QtWidgets.QLabel(t("reminder_img_caption"))
+                cap.setStyleSheet("color: #888; font-size: 11px;")
+                cap.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+                cap.setWordWrap(True)
+                layout.addWidget(cap)
+            sep = QtWidgets.QFrame()
+            sep.setFrameShape(QtWidgets.QFrame.Shape.HLine)
+            sep.setStyleSheet("color: #3e3e42;")
+            layout.addWidget(sep)
+
+        # Heartfelt thank-you + gentle support nudge (always shown)
+        heart = QtWidgets.QLabel(t("support_msg"))
+        heart.setWordWrap(True)
+        heart.setStyleSheet("font-size: 13px;")
+        layout.addWidget(heart)
+
         row = QtWidgets.QHBoxLayout()
-        self.guide_btn = QtWidgets.QPushButton(t("reminder_open_guide"))
-        self.guide_btn.setObjectName("rtssButton")
-        self.guide_btn.clicked.connect(lambda: self.done(1))
-        self.done_btn = QtWidgets.QPushButton(t("reminder_done"))
-        self.done_btn.clicked.connect(lambda: self.done(0))
-        row.addWidget(self.guide_btn)
-        row.addWidget(self.done_btn)
+        if show_smooth_motion:
+            self.guide_btn = QtWidgets.QPushButton(t("reminder_open_guide"))
+            self.guide_btn.setObjectName("rtssButton")
+            self.guide_btn.clicked.connect(lambda: self.done(1))
+            row.addWidget(self.guide_btn)
+        self.support_btn = QtWidgets.QPushButton(t("support_btn"))
+        self.support_btn.setObjectName("donatePix")
+        self.support_btn.clicked.connect(lambda: self.done(2))
+        row.addWidget(self.support_btn)
+        self.close_btn = QtWidgets.QPushButton(t("close_btn"))
+        self.close_btn.clicked.connect(lambda: self.done(0))
+        row.addWidget(self.close_btn)
         layout.addLayout(row)
 
 # ---------------------------------------------------------------------------
 # Main window
 # ---------------------------------------------------------------------------
 class DLSSOverrideApp(QtWidgets.QMainWindow):
-    APP_VERSION = "2.7.3"
+    APP_VERSION = "2.7.4"
     TESTED_AGAINST_NVAPP = "11.0.7"
 
     def __init__(self):
@@ -1720,17 +1745,19 @@ class DLSSOverrideApp(QtWidgets.QMainWindow):
         self.log("=" * 50)
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
-        # If the user actually processed the file this session, gently remind
-        # them about the Smooth Motion fix (the most-forgotten, highest-impact
-        # step for Star Citizen). Purely informational — no reboot, no changes.
-        if self.session_processed:
-            dlg = SmoothMotionReminderDialog(self)
-            if dlg.exec() == 1:
-                # User wants to do the Smooth Motion / RTSS fix now: keep the
-                # app open and launch the guide instead of closing.
-                event.ignore()
-                self.run_rtss_setup()
-                return
+        # On close: a warm thank-you + gentle support nudge, and — if the file was
+        # processed this session — the Smooth Motion reminder (most-forgotten step).
+        # Purely informational: no reboot, no system changes.
+        dlg = CloseDialog(self, show_smooth_motion=self.session_processed)
+        result = dlg.exec()
+        if result == 1:
+            # Wants to do the Smooth Motion / RTSS fix now: keep the app open.
+            event.ignore()
+            self.run_rtss_setup()
+            return
+        if result == 2:
+            # Wants to support the project — open the donation page (no codes shown here).
+            webbrowser.open(DONATE_PAYPAL_URL)
         event.accept()
 
 def main():
