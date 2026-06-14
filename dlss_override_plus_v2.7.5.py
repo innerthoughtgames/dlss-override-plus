@@ -254,7 +254,8 @@ LANG = {
         "dlg_nothing_title": "Nada selecionado",
         "dlg_nothing_msg": "Marque pelo menos uma chave ou ative o bump da versão da Streamline SDK.",
         "dlg_process_title": "Confirmar Processamento",
-        "dlg_process_msg": "Aplicar {n} chave(s) {sl}em:\n\n{p}\n\nContinuar?",
+        "dlg_process_msg": "Aplicar {n} chave(s) {sl}em:\n\n{p}\n\n🎮 Star Citizen: confirme que você JÁ adicionou o StarCitizen.exe no NVIDIA App (veja o Tutorial 📖) — senão ele não aparece aqui pra liberar.\n\nContinuar?",
+        "post_process_banner": "✅ DLSS OVERRIDE atualizado neste arquivo.\n⚠️ SMOOTH MOTION e POWER MANAGEMENT são ajustes do NVIDIA App (driver), NÃO deste arquivo — confira/ajuste manualmente. Se não estiverem, siga o TUTORIAL passo a passo (botão 📖).",
         "dlg_process_sl_extra": "mais bump da versão Streamline SDK ",
         "dlg_revert_title": "Confirmar Reversão",
         "dlg_revert_msg": "Restaurar o arquivo original do backup?\n\n{p}",
@@ -403,7 +404,8 @@ LANG = {
         "dlg_nothing_title": "Nothing selected",
         "dlg_nothing_msg": "Pick at least one key or enable the Streamline SDK version bump.",
         "dlg_process_title": "Confirm Process",
-        "dlg_process_msg": "Apply {n} key(s) {sl}to:\n\n{p}\n\nContinue?",
+        "dlg_process_msg": "Apply {n} key(s) {sl}to:\n\n{p}\n\n🎮 Star Citizen: make sure you have ALREADY added StarCitizen.exe to the NVIDIA App (see the Tutorial 📖) — otherwise it won't show up here to be unlocked.\n\nContinue?",
+        "post_process_banner": "✅ DLSS OVERRIDE updated in this file.\n⚠️ SMOOTH MOTION and POWER MANAGEMENT are NVIDIA App (driver) settings, NOT in this file — check/set them manually. If they aren't set, follow the TUTORIAL step by step (📖 button).",
         "dlg_process_sl_extra": "plus Streamline SDK version bump ",
         "dlg_revert_title": "Confirm Revert",
         "dlg_revert_msg": "Restore the original file from backup?\n\n{p}",
@@ -1044,7 +1046,7 @@ class CloseDialog(QtWidgets.QDialog):
 # Main window
 # ---------------------------------------------------------------------------
 class DLSSOverrideApp(QtWidgets.QMainWindow):
-    APP_VERSION = "2.7.4"
+    APP_VERSION = "2.7.5"
     TESTED_AGAINST_NVAPP = "11.0.7"
 
     def __init__(self):
@@ -1473,6 +1475,17 @@ class DLSSOverrideApp(QtWidgets.QMainWindow):
         sb = self.log_text.verticalScrollBar()
         sb.setValue(sb.maximum())
 
+    def log_highlight(self, message):
+        """Append a big, bold, red banner to the log (rendered as HTML)."""
+        safe = (message.replace("&", "&amp;").replace("<", "&lt;")
+                .replace(">", "&gt;").replace("\n", "<br>"))
+        self.log_text.append(
+            '<div style="color:#ff6b6b; font-size:14px; font-weight:bold; '
+            'border:1px solid #ff6b6b; border-radius:4px; padding:8px; margin:8px 0;">'
+            f'{safe}</div>')
+        sb = self.log_text.verticalScrollBar()
+        sb.setValue(sb.maximum())
+
     def clear_log(self):
         self.log_text.clear()
         self.log("Log cleared")
@@ -1723,6 +1736,7 @@ class DLSSOverrideApp(QtWidgets.QMainWindow):
 
         self.update_file_status()
         self.log("=" * 50)
+        self.log_highlight(self._t("post_process_banner"))
 
     def revert_file_action(self):
         file_path = self.path_edit.text().strip()

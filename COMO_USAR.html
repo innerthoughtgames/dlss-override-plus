@@ -205,6 +205,25 @@
   <span data-en>The numbers below are <b>tutorial</b> steps — not the button numbers. The 3 big on-screen buttons are labeled <b>1</b> / <b>2</b> / <b>3</b>.</span>
 </p>
 
+<div class="warning">
+  <span data-pt><b>🎮 Joga Star Citizen? Faça ISTO antes do Passo 1.</b><br>
+  Como o Star Citizen <b>não é oficialmente suportado</b>, o NVIDIA App geralmente <b>não detecta</b> ele sozinho — então você precisa adicionar o jogo manualmente, senão o programa <b>não acha o SC</b> pra liberar o DLSS.<br><br>
+  <b>Como adicionar:</b> NVIDIA App → <b>Graphics</b> → <b>Program Settings</b> → menu <b>⋮</b> (três pontos) → <b>Add a program</b> → navegue até <code>...\StarCitizen\LIVE\Bin64\StarCitizen.exe</code> (ou <code>PTU</code> / <code>HOTFIX</code>, conforme o que você joga) e adicione o <b>.exe</b> — <b>NÃO o launcher</b>.</span>
+  <span data-en><b>🎮 Playing Star Citizen? Do THIS before Step 1.</b><br>
+  Because Star Citizen <b>isn't officially supported</b>, the NVIDIA App usually <b>won't auto-detect</b> it — so you must add the game manually, or this program <b>won't find SC</b> to unlock DLSS.<br><br>
+  <b>How to add it:</b> NVIDIA App → <b>Graphics</b> → <b>Program Settings</b> → <b>⋮</b> menu (three dots) → <b>Add a program</b> → browse to <code>...\StarCitizen\LIVE\Bin64\StarCitizen.exe</code> (or <code>PTU</code> / <code>HOTFIX</code>, whichever you play) and add the <b>.exe</b> — <b>NOT the launcher</b>.</span>
+</div>
+<div class="screenshot">
+  <img src="local_add_star_citizedn_app_nvidia_2.png" alt="NVIDIA App — Program Settings — Add a program">
+  <div class="caption" data-pt>NVIDIA App → Graphics → Program Settings → menu <b>⋮</b> → <b>Add a program</b>.</div>
+  <div class="caption" data-en>NVIDIA App → Graphics → Program Settings → <b>⋮</b> menu → <b>Add a program</b>.</div>
+</div>
+<div class="screenshot">
+  <img src="local_add_star_citizedn_app_nvidia_1.png" alt="StarCitizen.exe in Bin64">
+  <div class="caption" data-pt>Escolha <code>StarCitizen\(LIVE/PTU/HOTFIX)\Bin64\StarCitizen.exe</code> — o <b>.exe</b>, não o launcher.</div>
+  <div class="caption" data-en>Pick <code>StarCitizen\(LIVE/PTU/HOTFIX)\Bin64\StarCitizen.exe</code> — the <b>.exe</b>, not the launcher.</div>
+</div>
+
 <div class="screenshot">
   <img src="screenshot_app.png" alt="DLSS Override+">
   <div class="caption" data-pt>Tela principal — siga os botões numerados: 1. Processar e 2. Reiniciar (3. Smooth Motion só no Star Citizen).</div>
@@ -214,8 +233,8 @@
 <div class="step">
   <div class="num">1</div>
   <div class="body">
-    <h4 data-pt>Abra o <code>dlss_override_plus_v2.7.4.exe</code></h4>
-    <h4 data-en>Open <code>dlss_override_plus_v2.7.4.exe</code></h4>
+    <h4 data-pt>Abra o <code>dlss_override_plus_v2.7.5.exe</code></h4>
+    <h4 data-en>Open <code>dlss_override_plus_v2.7.5.exe</code></h4>
     <p data-pt>Duplo-clique. Não precisa "Executar como administrador" — só precisa se você quiser ativar o indicador DLSS on-screen (opcional, dentro de <b>Opções extras</b>).</p>
     <p data-en>Double-click. No need to "Run as administrator" — only required if you want to enable the on-screen DLSS indicator (optional, inside <b>Extra options</b>).</p>
   </div>
@@ -467,7 +486,7 @@ UltraPerformance = L
 <p>Com <b>StarCitizen.exe</b> selecionado na lista, clique no botão azul <b>Setup</b> → aba <b>General</b> → role até <b>Injection properties</b> → marque ✅ <b>Use Microsoft Detours API hooking</b> → <b>OK</b>.</p>
 <img src="rtss_guide_detours.png" alt="Ativar Detours no Setup do RTSS" style="max-width:100%; border:1px solid #444; padding:4px; background:#1a1a1a;">
 <p>✅ <b>Pronto.</b> Smooth Motion vai funcionar sem tela preta. Pode fechar o RTSS — ele continua na bandeja.</p>
-<div class="info"><b>💡 Lembrete automático (v2.7.4):</b> quando você fechar o app depois de processar o arquivo, aparece um lembrete perguntando se o Smooth Motion já está ligado (com a foto do NVIDIA App). Tem um atalho pra reabrir o guia do RTSS, caso ainda falte. Não ignore: é o app garantindo que você não esqueça a etapa mais importante pro FPS.</div>
+<div class="info"><b>💡 Lembrete automático (v2.7.5):</b> quando você fechar o app depois de processar o arquivo, aparece um lembrete perguntando se o Smooth Motion já está ligado (com a foto do NVIDIA App). Tem um atalho pra reabrir o guia do RTSS, caso ainda falte. Não ignore: é o app garantindo que você não esqueça a etapa mais importante pro FPS.</div>
 </div>
 
 <div data-en>
@@ -482,7 +501,7 @@ UltraPerformance = L
 <p>With <b>StarCitizen.exe</b> selected in the list, click the blue <b>Setup</b> button → <b>General</b> tab → scroll to <b>Injection properties</b> → check ✅ <b>Use Microsoft Detours API hooking</b> → <b>OK</b>.</p>
 <img src="rtss_guide_detours.png" alt="Enable Detours in RTSS Setup" style="max-width:100%; border:1px solid #444; padding:4px; background:#1a1a1a;">
 <p>✅ <b>Done.</b> Smooth Motion will work without the black screen. You can close RTSS — it stays in the system tray.</p>
-<div class="info"><b>💡 Automatic reminder (v2.7.4):</b> when you close the app after processing the file, a reminder pops up asking whether Smooth Motion is already On (with the NVIDIA App photo). It has a shortcut to reopen the RTSS guide if you still need it. Don't dismiss it blindly: it's the app making sure you don't forget the most important step for FPS.</div>
+<div class="info"><b>💡 Automatic reminder (v2.7.5):</b> when you close the app after processing the file, a reminder pops up asking whether Smooth Motion is already On (with the NVIDIA App photo). It has a shortcut to reopen the RTSS guide if you still need it. Don't dismiss it blindly: it's the app making sure you don't forget the most important step for FPS.</div>
 </div>
 
 <h2>FAQ</h2>
@@ -585,7 +604,7 @@ UltraPerformance = L
 </section>
 
 <footer>
-  ITG • DLSS Override+ v2.7.4 • NVIDIA App 11.0.7.x<br>
+  ITG • DLSS Override+ v2.7.5 • NVIDIA App 11.0.7.x<br>
   <span data-pt>Em caso de dúvida, peça print do log pra quem te mandou o programa.</span>
   <span data-en>If in doubt, send a screenshot of the log to whoever shared the program.</span>
 </footer>
