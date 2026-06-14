@@ -264,7 +264,10 @@ LANG = {
         "reminder_img_caption": "É assim que fica: NVIDIA App → Graphics → Star Citizen → Smooth Motion = On",
         "reminder_open_guide": "Abrir guia do Smooth Motion (RTSS)",
         "support_msg": "Esse programa é feito por uma pessoa só, nas horas vagas — são muitas horas de desenvolvimento e testes pra deixar tudo funcionando, e ele é (e sempre vai ser) gratuito.\n\nSe ele te ajudou a ganhar FPS e curtir mais seus jogos, considere apoiar pra manter o projeto vivo. 💙 (Em breve tem vídeo tutorial também!)\n\nSem pressão — qualquer valor, de coração, já ajuda muito. E se não der, tá tudo bem: aproveita! 🎮",
-        "support_btn": "❤️ Apoiar o projeto",
+        "support_paypal": "❤️ Apoiar (PayPal)",
+        "support_pix": "❤️ Apoiar (PIX)",
+        "pix_copied_title": "Chave PIX copiada 💙",
+        "pix_copied_msg": "A chave PIX foi copiada — é só colar no app do seu banco (Pix → Transferir por chave):\n\n{k}\n\nMuito obrigado pelo apoio! 💙",
         "close_btn": "Fechar",
         # NPI Info dialog
         "npi_title": "Overrides do driver (nvidiaProfileInspector)",
@@ -410,7 +413,10 @@ LANG = {
         "reminder_img_caption": "This is what it looks like: NVIDIA App → Graphics → Star Citizen → Smooth Motion = On",
         "reminder_open_guide": "Open the Smooth Motion guide (RTSS)",
         "support_msg": "This program is made by one person, in their spare time — many hours of development and testing to keep everything working, and it is (and always will be) free.\n\nIf it helped you gain FPS and enjoy your games more, please consider supporting it to keep the project alive. 💙 (A video tutorial is coming soon, too!)\n\nNo pressure — any amount, from the heart, helps a lot. And if you can't, that's totally fine: enjoy! 🎮",
-        "support_btn": "❤️ Support the project",
+        "support_paypal": "❤️ Support (PayPal)",
+        "support_pix": "❤️ Support (PIX)",
+        "pix_copied_title": "PIX key copied 💙",
+        "pix_copied_msg": "The PIX key has been copied — just paste it in your bank app (PIX transfer by key):\n\n{k}\n\nThank you so much for the support! 💙",
         "close_btn": "Close",
         # NPI Info dialog
         "npi_title": "Driver-side overrides (nvidiaProfileInspector)",
@@ -1021,10 +1027,14 @@ class CloseDialog(QtWidgets.QDialog):
             self.guide_btn.setObjectName("rtssButton")
             self.guide_btn.clicked.connect(lambda: self.done(1))
             row.addWidget(self.guide_btn)
-        self.support_btn = QtWidgets.QPushButton(t("support_btn"))
-        self.support_btn.setObjectName("donatePix")
-        self.support_btn.clicked.connect(lambda: self.done(2))
-        row.addWidget(self.support_btn)
+        self.paypal_btn = QtWidgets.QPushButton(t("support_paypal"))
+        self.paypal_btn.setObjectName("donatePaypal")
+        self.paypal_btn.clicked.connect(lambda: self.done(2))
+        row.addWidget(self.paypal_btn)
+        self.pix_btn = QtWidgets.QPushButton(t("support_pix"))
+        self.pix_btn.setObjectName("donatePix")
+        self.pix_btn.clicked.connect(lambda: self.done(3))
+        row.addWidget(self.pix_btn)
         self.close_btn = QtWidgets.QPushButton(t("close_btn"))
         self.close_btn.clicked.connect(lambda: self.done(0))
         row.addWidget(self.close_btn)
@@ -1756,8 +1766,14 @@ class DLSSOverrideApp(QtWidgets.QMainWindow):
             self.run_rtss_setup()
             return
         if result == 2:
-            # Wants to support the project — open the donation page (no codes shown here).
+            # Support via PayPal — open the donation page.
             webbrowser.open(DONATE_PAYPAL_URL)
+        elif result == 3:
+            # Support via PIX — copy the key to the clipboard and show it.
+            QtWidgets.QApplication.clipboard().setText(DONATE_PIX_KEY)
+            QtWidgets.QMessageBox.information(
+                self, self._t("pix_copied_title"),
+                self._t("pix_copied_msg", k=DONATE_PIX_KEY))
         event.accept()
 
 def main():
