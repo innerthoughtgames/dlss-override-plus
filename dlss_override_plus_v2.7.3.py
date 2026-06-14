@@ -147,6 +147,11 @@ LANG = {
         "status_not_found": "Arquivo não encontrado",
         "keys_group": "Chaves a aplicar (ApplicationStorage.json)",
         "extra_group": "Opções extras",
+        "step_strip": "Como usar:   1. Processar Arquivo   →   2. Reiniciar Serviços NVIDIA   →   3. Smooth Motion (SC, p/ Star Citizen)",
+        "keys_header": "Chaves a aplicar  (avançado — quase ninguém precisa mexer)",
+        "tip_keys_header": "Opcional: escolha quais features DLSS são forçadas. Clique para expandir.",
+        "extra_header": "Opções extras  (avançado)",
+        "tip_extra_header": "Opcional: Streamline SDK, fingerprint.db, somente-leitura, indicador DLSS. Clique para expandir.",
         "sl_label": "Atualizar versão da Streamline SDK (DLSS runtime) para:",
         "sl_scan": "Escanear arquivo (max)",
         "sl_help": "<i>Se não souber, deixe desmarcado. 'Escanear' lê a maior versão presente no seu JSON.</i>",
@@ -154,11 +159,11 @@ LANG = {
         "set_ro": "Marcar arquivo como somente leitura após mudanças",
         "dlss_indicator": "Ativar indicador DLSS na tela (NGXCore, requer admin)",
         "preview": "Pré-visualizar",
-        "process": "Processar Arquivo",
+        "process": "1.  Processar Arquivo",
         "revert": "Reverter do Backup",
         "make_ro": "Travar (Read-Only)",
         "make_rw": "Destravar (Writable)",
-        "restart_svc": "Reiniciar Serviços NVIDIA",
+        "restart_svc": "2.  Reiniciar Serviços NVIDIA",
         "npi_btn": "Overrides do driver (NPI)",
         "clear_log": "Limpar Log",
         "donate_title": "☕ Curtiu? Apoie",
@@ -207,7 +212,7 @@ LANG = {
         "log_tutorial_opened": "Tutorial aberto no navegador",
         "dlg_tutorial_missing": "Tutorial não encontrado no pacote do programa.",
         # RTSS Smooth Motion guide (Star Citizen)
-        "rtss_btn": "🎮 Smooth Motion (SC)",
+        "rtss_btn": "3.  🎮 Smooth Motion (SC)",
         "tip_rtss_btn": "Abre o RTSS (RivaTuner) e mostra um guia visual com os 2 passos para configurar o fix do Smooth Motion no Star Citizen (sem tela preta). Você faz os cliques na interface do RTSS, o app só te guia. Precisa do RTSS instalado (programa separado, gratuito).",
         "rtss_dlg_title": "Configurar Smooth Motion (Star Citizen)",
         "rtss_dlg_confirm": "O app vai abrir o RTSS e te mostrar um guia visual com 2 passos simples para configurar o fix do Smooth Motion (sem tela preta no Star Citizen).\n\nVocê faz os cliques na interface do RTSS — o app só te orienta. Continuar?",
@@ -253,13 +258,12 @@ LANG = {
         "dlg_process_sl_extra": "mais bump da versão Streamline SDK ",
         "dlg_revert_title": "Confirmar Reversão",
         "dlg_revert_msg": "Restaurar o arquivo original do backup?\n\n{p}",
-        "dlg_close_title": "Ação Necessária",
-        "dlg_close_msg": "As mudanças exigem reiniciar serviços ou o PC para terem efeito.\nO que deseja fazer?",
-        "dlg_close_restart": "Reiniciar Serviços",
-        "dlg_close_reboot": "Reiniciar PC",
-        "dlg_close_nothing": "Não fazer nada",
-        "dlg_reboot_confirm_title": "Confirmar Reboot",
-        "dlg_reboot_confirm_msg": "Reiniciar o PC agora? Trabalho não salvo em outros programas será perdido.",
+        # Smooth Motion close reminder
+        "reminder_title": "Lembrete importante — Star Citizen",
+        "reminder_msg": "Você já ativou o Smooth Motion?\n\nPra ter o ganho de FPS no Star Citizen são 2 coisas: (1) ligar Smooth Motion = On no NVIDIA App, e (2) aplicar o fix do RTSS pelo botão 🎮 Smooth Motion (SC). Sem isso o Smooth Motion não funciona (tela preta) — e é o maior ganho de FPS do jogo.",
+        "reminder_img_caption": "É assim que fica: NVIDIA App → Graphics → Star Citizen → Smooth Motion = On",
+        "reminder_open_guide": "Abrir guia do Smooth Motion (RTSS)",
+        "reminder_done": "Já ativei — pode fechar",
         # NPI Info dialog
         "npi_title": "Overrides do driver (nvidiaProfileInspector)",
         "npi_intro": "O ApplicationStorage.json controla quais toggles DLSS aparecem na interface\nda NVIDIA App. Para forçar os valores que o driver aplica em tempo de execução\n(principalmente o multiplicador do MFG e o Preset K/J do DLSS), use esses\nIDs no nvidiaProfileInspector. As edições do JSON e os IDs do driver são\ncamadas independentes — ambos devem estar configurados para controle total.",
@@ -287,6 +291,11 @@ LANG = {
         "status_not_found": "File not found",
         "keys_group": "Keys to apply (ApplicationStorage.json)",
         "extra_group": "Extra options",
+        "step_strip": "How to use:   1. Process File   →   2. Restart NVIDIA Services   →   3. Smooth Motion (SC, for Star Citizen)",
+        "keys_header": "Keys to apply  (advanced — almost nobody needs to touch this)",
+        "tip_keys_header": "Optional: choose which DLSS features are forced. Click to expand.",
+        "extra_header": "Extra options  (advanced)",
+        "tip_extra_header": "Optional: Streamline SDK, fingerprint.db, read-only, DLSS indicator. Click to expand.",
         "sl_label": "Update Streamline SDK version (DLSS runtime) to:",
         "sl_scan": "Scan file for max",
         "sl_help": "<i>If unsure, leave unchecked. 'Scan file for max' reads the highest version already in your JSON.</i>",
@@ -294,11 +303,11 @@ LANG = {
         "set_ro": "Set file as read-only after modifications",
         "dlss_indicator": "Enable DLSS on-screen indicator (NGXCore, admin)",
         "preview": "Preview",
-        "process": "Process File",
+        "process": "1.  Process File",
         "revert": "Revert to Backup",
         "make_ro": "Make Read-Only",
         "make_rw": "Make Writable",
-        "restart_svc": "Restart NVIDIA Services",
+        "restart_svc": "2.  Restart NVIDIA Services",
         "npi_btn": "Driver-side overrides (NPI)",
         "clear_log": "Clear Log",
         "donate_title": "☕ Liked it? Support",
@@ -347,7 +356,7 @@ LANG = {
         "log_tutorial_opened": "Tutorial opened in browser",
         "dlg_tutorial_missing": "Tutorial not found in program bundle.",
         # RTSS auto-config (Smooth Motion fix for Star Citizen)
-        "rtss_btn": "🎮 Smooth Motion (SC)",
+        "rtss_btn": "3.  🎮 Smooth Motion (SC)",
         "tip_rtss_btn": "Opens RTSS (RivaTuner) and shows a visual guide with the 2 steps to set up the Star Citizen Smooth Motion fix (no black-screen). You click in the RTSS UI yourself — the app just guides you. Requires RTSS installed (separate free program).",
         "rtss_dlg_title": "Configure Smooth Motion (Star Citizen)",
         "rtss_dlg_confirm": "The app will open RTSS and show a visual guide with 2 simple steps to set up the Smooth Motion fix (no black-screen in Star Citizen).\n\nYou'll click in the RTSS UI yourself — the app just walks you through. Continue?",
@@ -393,13 +402,12 @@ LANG = {
         "dlg_process_sl_extra": "plus Streamline SDK version bump ",
         "dlg_revert_title": "Confirm Revert",
         "dlg_revert_msg": "Restore the original file from backup?\n\n{p}",
-        "dlg_close_title": "Action Required",
-        "dlg_close_msg": "Changes require restarting services or rebooting to take effect.\nWhat would you like to do?",
-        "dlg_close_restart": "Restart Services",
-        "dlg_close_reboot": "Reboot PC",
-        "dlg_close_nothing": "Do Nothing",
-        "dlg_reboot_confirm_title": "Confirm Reboot",
-        "dlg_reboot_confirm_msg": "Reboot now? Unsaved work in other apps will be lost.",
+        # Smooth Motion close reminder
+        "reminder_title": "Important reminder — Star Citizen",
+        "reminder_msg": "Did you already enable Smooth Motion?\n\nFor the FPS gain in Star Citizen you need 2 things: (1) set Smooth Motion = On in the NVIDIA App, and (2) apply the RTSS fix via the 🎮 Smooth Motion (SC) button. Without it Smooth Motion won't work (black screen) — and it's the biggest FPS gain in the game.",
+        "reminder_img_caption": "This is what it looks like: NVIDIA App → Graphics → Star Citizen → Smooth Motion = On",
+        "reminder_open_guide": "Open the Smooth Motion guide (RTSS)",
+        "reminder_done": "Already enabled it — close",
         # NPI Info dialog
         "npi_title": "Driver-side overrides (nvidiaProfileInspector)",
         "npi_intro": "ApplicationStorage.json gates which DLSS toggles appear in the\nNVIDIA App UI. To force the values the driver applies at runtime\n(especially MFG multiplier and DLSS Preset K/J), use these IDs in\nnvidiaProfileInspector. The JSON edits and these driver IDs are\nindependent layers — both should match for full control.",
@@ -833,25 +841,6 @@ def detect_gpu_generation():
 # ---------------------------------------------------------------------------
 # Dialogs
 # ---------------------------------------------------------------------------
-class CloseActionDialog(QtWidgets.QDialog):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        # Use parent's translator if available
-        t = getattr(parent, "_t", None) or (lambda k, **kw: k)
-        self.setWindowTitle(t("dlg_close_title"))
-        layout = QtWidgets.QVBoxLayout(self)
-        layout.addWidget(QtWidgets.QLabel(t("dlg_close_msg")))
-        row = QtWidgets.QHBoxLayout()
-        self.restartButton = QtWidgets.QPushButton(t("dlg_close_restart"))
-        self.rebootButton = QtWidgets.QPushButton(t("dlg_close_reboot"))
-        self.noActionButton = QtWidgets.QPushButton(t("dlg_close_nothing"))
-        for b in (self.restartButton, self.rebootButton, self.noActionButton):
-            row.addWidget(b)
-        layout.addLayout(row)
-        self.restartButton.clicked.connect(lambda: self.done(1))
-        self.rebootButton.clicked.connect(lambda: self.done(2))
-        self.noActionButton.clicked.connect(lambda: self.done(0))
-
 class NPIInfoDialog(QtWidgets.QDialog):
     """Show the driver-side override settings the JSON can't reach."""
     def __init__(self, parent=None):
@@ -979,11 +968,48 @@ class RTSSSetupGuideDialog(QtWidgets.QDialog):
             label.setStyleSheet("color: #c80; padding: 12px;")
         layout.addWidget(label)
 
+class SmoothMotionReminderDialog(QtWidgets.QDialog):
+    """Gentle close-time reminder to enable Smooth Motion for Star Citizen.
+    Purely informational — no reboot, no system changes. Shows what
+    'Smooth Motion = On' looks like in the NVIDIA App. done(1) = open the
+    Smooth Motion/RTSS guide now; done(0) = just close."""
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        t = getattr(parent, "_t", None) or (lambda k, **kw: k)
+        self.setWindowTitle(t("reminder_title"))
+        self.setMinimumWidth(560)
+        layout = QtWidgets.QVBoxLayout(self)
+        msg = QtWidgets.QLabel(t("reminder_msg"))
+        msg.setWordWrap(True)
+        layout.addWidget(msg)
+        img_path = resource_path("smooth_motion_on.png")
+        if os.path.exists(img_path):
+            pic = QtWidgets.QLabel()
+            pic.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+            pic.setPixmap(QtGui.QPixmap(img_path).scaledToWidth(
+                520, QtCore.Qt.TransformationMode.SmoothTransformation))
+            pic.setStyleSheet("border: 1px solid #444; padding: 4px; background: #1a1a1a;")
+            layout.addWidget(pic)
+            cap = QtWidgets.QLabel(t("reminder_img_caption"))
+            cap.setStyleSheet("color: #888; font-size: 11px;")
+            cap.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+            cap.setWordWrap(True)
+            layout.addWidget(cap)
+        row = QtWidgets.QHBoxLayout()
+        self.guide_btn = QtWidgets.QPushButton(t("reminder_open_guide"))
+        self.guide_btn.setObjectName("rtssButton")
+        self.guide_btn.clicked.connect(lambda: self.done(1))
+        self.done_btn = QtWidgets.QPushButton(t("reminder_done"))
+        self.done_btn.clicked.connect(lambda: self.done(0))
+        row.addWidget(self.guide_btn)
+        row.addWidget(self.done_btn)
+        layout.addLayout(row)
+
 # ---------------------------------------------------------------------------
 # Main window
 # ---------------------------------------------------------------------------
 class DLSSOverrideApp(QtWidgets.QMainWindow):
-    APP_VERSION = "2.6.4"
+    APP_VERSION = "2.7.3"
     TESTED_AGAINST_NVAPP = "11.0.7"
 
     def __init__(self):
@@ -1037,6 +1063,12 @@ class DLSSOverrideApp(QtWidgets.QMainWindow):
         lang_row.addWidget(self.en_button)
         root.addLayout(lang_row)
 
+        # Numbered "how to use" guide strip — states the happy-path sequence
+        self.step_strip = QtWidgets.QLabel()
+        self.step_strip.setObjectName("stepStrip")
+        self.step_strip.setWordWrap(True)
+        root.addWidget(self.step_strip)
+
         # File path
         path_row = QtWidgets.QHBoxLayout()
         self.path_edit = QtWidgets.QLineEdit()
@@ -1053,7 +1085,11 @@ class DLSSOverrideApp(QtWidgets.QMainWindow):
         self.status_label.setStyleSheet("padding: 5px; border-radius: 3px;")
         root.addWidget(self.status_label)
 
-        # Per-key toggles
+        # Per-key toggles — collapsible "advanced" section, hidden by default
+        self.keys_header = self._make_section_header()
+        self.keys_header.toggled.connect(
+            lambda on: self._toggle_section(self.keys_header, self.keys_group, on))
+        root.addWidget(self.keys_header)
         self.keys_group = QtWidgets.QGroupBox()
         kg_layout = QtWidgets.QGridLayout(self.keys_group)
         for i, (key, spec) in enumerate(KEY_SPECS.items()):
@@ -1061,9 +1097,14 @@ class DLSSOverrideApp(QtWidgets.QMainWindow):
             cb.setChecked(spec["default"])
             self.key_checkboxes[key] = cb
             kg_layout.addWidget(cb, i // 2, i % 2)
+        self.keys_group.setVisible(False)
         root.addWidget(self.keys_group)
 
-        # Extra options
+        # Extra options — collapsible "advanced" section, hidden by default
+        self.extra_header = self._make_section_header()
+        self.extra_header.toggled.connect(
+            lambda on: self._toggle_section(self.extra_header, self.extra_group, on))
+        root.addWidget(self.extra_header)
         self.extra_group = QtWidgets.QGroupBox()
         eg = QtWidgets.QGridLayout(self.extra_group)
 
@@ -1094,45 +1135,55 @@ class DLSSOverrideApp(QtWidgets.QMainWindow):
         self.dlss_indicator_cb.setChecked(False)
         eg.addWidget(self.dlss_indicator_cb, 4, 0, 1, 3)
 
+        self.extra_group.setVisible(False)
         root.addWidget(self.extra_group)
 
-        # Primary action buttons
+        # Primary action row — the happy path: 1) Process, 2) Restart NVIDIA,
+        # 3) Smooth Motion (SC). All three are tall, color-accented (green + orange
+        # + teal) so the sequence is obvious; the "1." / "2." / "3." numeric
+        # prefixes live in the LANG strings.
         btn_row = QtWidgets.QHBoxLayout()
-        self.preview_button = QtWidgets.QPushButton("Preview")
-        self.preview_button.clicked.connect(self.preview_changes)
-        self.preview_button.setMinimumHeight(35)
-        btn_row.addWidget(self.preview_button)
-
         self.process_button = QtWidgets.QPushButton("Process File")
         self.process_button.clicked.connect(self.process_file)
-        self.process_button.setMinimumHeight(35)
+        self.process_button.setMinimumHeight(48)
         btn_row.addWidget(self.process_button)
+
+        self.restart_services_button = QtWidgets.QPushButton("Restart NVIDIA Services")
+        self.restart_services_button.clicked.connect(self.restart_services_action)
+        self.restart_services_button.setMinimumHeight(48)
+        btn_row.addWidget(self.restart_services_button)
+
+        # Step 3 — Smooth Motion (SC) fix, promoted to a tall numbered button
+        self.rtss_button = QtWidgets.QPushButton()
+        self.rtss_button.setObjectName("rtssButton")
+        self.rtss_button.clicked.connect(self.run_rtss_setup)
+        self.rtss_button.setMinimumHeight(48)
+        btn_row.addWidget(self.rtss_button)
+        root.addLayout(btn_row)
+
+        # Secondary action row — optional, visually quieter (ghost buttons)
+        secondary_row = QtWidgets.QHBoxLayout()
+        self.preview_button = QtWidgets.QPushButton("Preview")
+        self.preview_button.clicked.connect(self.preview_changes)
+        self.preview_button.setMinimumHeight(30)
+        secondary_row.addWidget(self.preview_button)
 
         self.revert_button = QtWidgets.QPushButton("Revert to Backup")
         self.revert_button.clicked.connect(self.revert_file_action)
-        self.revert_button.setMinimumHeight(35)
-        btn_row.addWidget(self.revert_button)
-        root.addLayout(btn_row)
+        self.revert_button.setMinimumHeight(30)
+        secondary_row.addWidget(self.revert_button)
+        root.addLayout(secondary_row)
 
-        # Utility row
+        # Utility row (Restart was promoted to the primary row above)
         util = QtWidgets.QHBoxLayout()
         self.toggle_readonly_button = QtWidgets.QPushButton("Toggle Read-Only")
         self.toggle_readonly_button.clicked.connect(self.toggle_readonly)
         util.addWidget(self.toggle_readonly_button)
 
-        self.restart_services_button = QtWidgets.QPushButton("Restart NVIDIA Services")
-        self.restart_services_button.clicked.connect(self.restart_services_action)
-        util.addWidget(self.restart_services_button)
-
         self.tutorial_button = QtWidgets.QPushButton()
         self.tutorial_button.setObjectName("tutorialButton")
         self.tutorial_button.clicked.connect(self.show_tutorial)
         util.addWidget(self.tutorial_button)
-
-        self.rtss_button = QtWidgets.QPushButton()
-        self.rtss_button.setObjectName("rtssButton")
-        self.rtss_button.clicked.connect(self.run_rtss_setup)
-        util.addWidget(self.rtss_button)
 
         self.npi_button = QtWidgets.QPushButton("Driver-side overrides (NPI)")
         self.npi_button.clicked.connect(self.show_npi_info)
@@ -1228,6 +1279,23 @@ class DLSSOverrideApp(QtWidgets.QMainWindow):
         self.log(self._t("log_init", v=self.APP_VERSION))
         self.log(self._t("log_target", p=default_path))
 
+    def _make_section_header(self):
+        """Build a collapsible accordion header (QToolButton with a ▶/▼ arrow).
+        Starts collapsed; text + tooltip are set by retranslate_ui()."""
+        btn = QtWidgets.QToolButton()
+        btn.setObjectName("sectionHeader")
+        btn.setCheckable(True)
+        btn.setChecked(False)
+        btn.setToolButtonStyle(QtCore.Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+        btn.setArrowType(QtCore.Qt.ArrowType.RightArrow)
+        return btn
+
+    def _toggle_section(self, header, body, checked):
+        """Show/hide an accordion body and flip its header arrow."""
+        body.setVisible(checked)
+        header.setArrowType(
+            QtCore.Qt.ArrowType.DownArrow if checked else QtCore.Qt.ArrowType.RightArrow)
+
     def _copy_to_clipboard(self, text, btn, original_key):
         QtWidgets.QApplication.clipboard().setText(text)
         btn.setText(self._t("copied"))
@@ -1243,9 +1311,16 @@ class DLSSOverrideApp(QtWidgets.QMainWindow):
         self.path_edit.setToolTip(self._t("tip_path"))
         self.browse_button.setText(self._t("browse"))
         self.browse_button.setToolTip(self._t("tip_browse"))
-        # Group titles
-        self.keys_group.setTitle(self._t("keys_group"))
-        self.extra_group.setTitle(self._t("extra_group"))
+        # Numbered guide strip
+        self.step_strip.setText(self._t("step_strip"))
+        # Accordion headers carry the (labelled) section titles; the QGroupBoxes
+        # themselves render title-less so the arrow header is the only heading.
+        self.keys_group.setTitle("")
+        self.extra_group.setTitle("")
+        self.keys_header.setText(self._t("keys_header"))
+        self.keys_header.setToolTip(self._t("tip_keys_header"))
+        self.extra_header.setText(self._t("extra_header"))
+        self.extra_header.setToolTip(self._t("tip_extra_header"))
         # Per-game checkbox label + tooltip (uses spec abbr -> tip_XX / key_XX_label)
         for key, spec in KEY_SPECS.items():
             cb = self.key_checkboxes.get(key)
@@ -1313,8 +1388,18 @@ class DLSSOverrideApp(QtWidgets.QMainWindow):
         QPushButton#npiButton:hover { background-color: #1E5C1E; }
         QPushButton#tutorialButton { background-color: #00ACC1; }
         QPushButton#tutorialButton:hover { background-color: #00838F; }
-        QPushButton#rtssButton { background-color: #455A64; }
-        QPushButton#rtssButton:hover { background-color: #37474F; }
+        QPushButton#rtssButton { background-color: #0E8A8A; }
+        QPushButton#rtssButton:hover { background-color: #0B6E6E; }
+        QPushButton#primaryAction { background-color: #2E8B2E; font-size: 14px; min-height: 48px; }
+        QPushButton#primaryAction:hover { background-color: #246B24; }
+        QPushButton#ghostBtn { background-color: transparent; border: 1px solid #3e3e42;
+                               color: #bdbdbd; font-weight: 600; }
+        QPushButton#ghostBtn:hover { background-color: #2d2d30; border-color: #007ACC; color: #e0e0e0; }
+        QToolButton#sectionHeader { background: transparent; border: none; text-align: left;
+                                    font-weight: 600; padding: 6px 2px; color: #cfcfcf; }
+        QToolButton#sectionHeader:hover { color: #4aa3ff; }
+        QToolButton#sectionHeader:checked { color: #e0e0e0; }
+        QLabel#stepStrip { color: #9ecbff; font-size: 12px; font-weight: 600; padding: 4px 2px; }
         QPushButton#flagButton { background-color: #2d2d30; border: 1px solid #444; padding: 3px 8px;
                                  font-size: 12px; font-weight: 600; }
         QPushButton#flagButton:hover { background-color: #3a3a3e; border-color: #007ACC; }
@@ -1335,11 +1420,16 @@ class DLSSOverrideApp(QtWidgets.QMainWindow):
         QGroupBox::title { subcontrol-origin: margin; left: 8px; padding: 0 4px; }
         QTableWidget { background-color: #2d2d30; gridline-color: #3e3e42; }
         QHeaderView::section { background-color: #2d2d30; padding: 4px; border: 1px solid #3e3e42; }
+        QToolTip { background-color: #15151a; color: #e8e8e8; border: 1px solid #007ACC;
+                   padding: 5px 7px; border-radius: 3px; font-size: 12px; }
         """
         self.setStyleSheet(style)
         self.toggle_readonly_button.setObjectName("toggleReadonly")
         self.restart_services_button.setObjectName("restartServices")
         self.npi_button.setObjectName("npiButton")
+        self.process_button.setObjectName("primaryAction")
+        self.preview_button.setObjectName("ghostBtn")
+        self.revert_button.setObjectName("ghostBtn")
 
     # -- Logging -------------------------------------------------------------
     def log(self, message):
@@ -1630,19 +1720,17 @@ class DLSSOverrideApp(QtWidgets.QMainWindow):
         self.log("=" * 50)
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
+        # If the user actually processed the file this session, gently remind
+        # them about the Smooth Motion fix (the most-forgotten, highest-impact
+        # step for Star Citizen). Purely informational — no reboot, no changes.
         if self.session_processed:
-            dialog = CloseActionDialog(self)
-            result = dialog.exec()
-            if result == 1:
-                restart_services(self.log)
-            elif result == 2:
-                confirm = QtWidgets.QMessageBox.question(
-                    self, self._t("dlg_reboot_confirm_title"),
-                    self._t("dlg_reboot_confirm_msg"),
-                    QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
-                if confirm == QtWidgets.QMessageBox.StandardButton.Yes:
-                    subprocess.Popen(["shutdown", "/r", "/t", "10"],
-                                     creationflags=subprocess.CREATE_NO_WINDOW)
+            dlg = SmoothMotionReminderDialog(self)
+            if dlg.exec() == 1:
+                # User wants to do the Smooth Motion / RTSS fix now: keep the
+                # app open and launch the guide instead of closing.
+                event.ignore()
+                self.run_rtss_setup()
+                return
         event.accept()
 
 def main():

@@ -173,6 +173,10 @@
   1. Abre o app → 2. Clica <b>Processar Arquivo</b> → 3. Clica <b>Reiniciar Serviços NVIDIA</b>. Pronto, todos os jogos com DLSS estão destravados.</span>
   <span data-en><strong>TL;DR (3 steps):</strong><br>
   1. Open the app → 2. Click <b>Process File</b> → 3. Click <b>Restart NVIDIA Services</b>. Done — all your DLSS games are unlocked.</span>
+  <div style="margin-top:10px;">
+    <span data-pt>🔴 <b>Joga Star Citizen?</b> Tem 1 passo extra obrigatório (Smooth Motion) — <a href="#smooth-motion" style="color:#ff9a9a;">veja o Passo 8</a>, senão o maior ganho de FPS não funciona.</span>
+    <span data-en>🔴 <b>Playing Star Citizen?</b> There's 1 extra required step (Smooth Motion) — <a href="#smooth-motion" style="color:#ff9a9a;">see Step 8</a>, or the biggest FPS gain won't work.</span>
+  </div>
 </div>
 
 <h2 data-pt>O que esse app faz?</h2>
@@ -196,19 +200,24 @@
 <h2 data-pt>Passo a passo (a parte que importa)</h2>
 <h2 data-en>Step by step (the part that matters)</h2>
 
+<p style="color:#888; font-size:13px; margin-top:-6px;">
+  <span data-pt>Os números abaixo são os passos do <b>tutorial</b> — não os números dos botões. Os 3 botões grandes na tela têm etiquetas <b>1</b> / <b>2</b> / <b>3</b>.</span>
+  <span data-en>The numbers below are <b>tutorial</b> steps — not the button numbers. The 3 big on-screen buttons are labeled <b>1</b> / <b>2</b> / <b>3</b>.</span>
+</p>
+
 <div class="screenshot">
   <img src="screenshot_app.png" alt="DLSS Override+">
-  <div class="caption" data-pt>Tela principal — você vai usar só 2 botões.</div>
-  <div class="caption" data-en>Main screen — you only need 2 buttons.</div>
+  <div class="caption" data-pt>Tela principal — siga os botões numerados: 1. Processar e 2. Reiniciar (3. Smooth Motion só no Star Citizen).</div>
+  <div class="caption" data-en>Main screen — follow the numbered buttons: 1. Process and 2. Restart (3. Smooth Motion only for Star Citizen).</div>
 </div>
 
 <div class="step">
   <div class="num">1</div>
   <div class="body">
-    <h4 data-pt>Abra o <code>dlss_override_plus_v2.6.4.exe</code></h4>
-    <h4 data-en>Open <code>dlss_override_plus_v2.6.4.exe</code></h4>
-    <p data-pt>Duplo-clique. Não precisa "Executar como administrador" — só precisa se você quiser ativar o indicador on-screen (opcional, passo 5).</p>
-    <p data-en>Double-click. No need to "Run as administrator" — only required if you want to enable the on-screen indicator (optional, step 5).</p>
+    <h4 data-pt>Abra o <code>dlss_override_plus_v2.7.3.exe</code></h4>
+    <h4 data-en>Open <code>dlss_override_plus_v2.7.3.exe</code></h4>
+    <p data-pt>Duplo-clique. Não precisa "Executar como administrador" — só precisa se você quiser ativar o indicador DLSS on-screen (opcional, dentro de <b>Opções extras</b>).</p>
+    <p data-en>Double-click. No need to "Run as administrator" — only required if you want to enable the on-screen DLSS indicator (optional, inside <b>Extra options</b>).</p>
   </div>
 </div>
 
@@ -225,10 +234,10 @@
 <div class="step">
   <div class="num">3</div>
   <div class="body">
-    <h4 data-pt>Confere as checkboxes (já vêm certas)</h4>
-    <h4 data-en>Check the checkboxes (already set correctly)</h4>
-    <p data-pt><b>Não mexe.</b> O padrão já libera tudo (FG, RR, SR, Modelos, NoOPS, MFG marcados / OPS desmarcado).</p>
-    <p data-en><b>Don't touch.</b> Defaults unlock everything (FG, RR, SR, Models, NoOPS, MFG checked / OPS unchecked).</p>
+    <h4 data-pt>As chaves já vêm certas (nem precisa abrir)</h4>
+    <h4 data-en>The keys are already set right (no need to open them)</h4>
+    <p data-pt><b>Não mexe.</b> Ficam recolhidas em <b>Chaves a aplicar (avançado)</b>. O padrão já libera tudo (FG, RR, SR, Modelos, NoOPS, MFG marcados / OPS desmarcado). Só abre se quiser conferir.</p>
+    <p data-en><b>Don't touch.</b> They're collapsed under <b>Keys to apply (advanced)</b>. Defaults unlock everything (FG, RR, SR, Models, NoOPS, MFG checked / OPS unchecked). Only expand if you're curious.</p>
   </div>
 </div>
 
@@ -245,18 +254,18 @@
 <div class="step">
   <div class="num">5</div>
   <div class="body">
-    <h4 data-pt>Clica <span class="button-name">Processar Arquivo</span> / <span class="button-name">Process File</span></h4>
-    <h4 data-en>Click <span class="button-name">Process File</span></h4>
-    <p data-pt>Botão principal. Cria backup, modifica chaves DLSS de todos os jogos, edita fingerprint.db, e marca como somente leitura.</p>
-    <p data-en>Main button. Creates a backup, modifies DLSS keys for all games, edits fingerprint.db, and sets the file to read-only.</p>
+    <h4 data-pt>Clica no botão verde <span class="button-name button-green">1. Processar Arquivo</span></h4>
+    <h4 data-en>Click the green <span class="button-name button-green">1. Process File</span> button</h4>
+    <p data-pt>O botão grande verde (passo 1 na tela). Cria backup, modifica chaves DLSS de todos os jogos, edita fingerprint.db, e marca como somente leitura.</p>
+    <p data-en>The big green button (step 1 on screen). Creates a backup, modifies DLSS keys for all games, edits fingerprint.db, and sets the file to read-only.</p>
   </div>
 </div>
 
 <div class="step">
   <div class="num">6</div>
   <div class="body">
-    <h4 data-pt>Clica <span class="button-name button-orange">Reiniciar Serviços NVIDIA</span></h4>
-    <h4 data-en>Click <span class="button-name button-orange">Restart NVIDIA Services</span></h4>
+    <h4 data-pt>Clica no botão laranja <span class="button-name button-orange">2. Reiniciar Serviços NVIDIA</span></h4>
+    <h4 data-en>Click the orange <span class="button-name button-orange">2. Restart NVIDIA Services</span> button</h4>
     <p data-pt>Reinicia serviços pra ler o arquivo novo. <b>A tela pode piscar 1-2 segundos.</b> Vai pedir UAC — clica Sim.</p>
     <p data-en>Restarts services to load the new file. <b>Screen may flicker 1-2 seconds.</b> UAC prompt — click Yes.</p>
   </div>
@@ -269,6 +278,16 @@
     <h4 data-en>Done. Open the game and turn DLSS on.</h4>
     <p data-pt>Todas as opções DLSS vão aparecer no menu de gráficos do jogo, mesmo se "oficialmente não suporta".</p>
     <p data-en>All DLSS options will show up in the game's graphics menu, even if it "officially doesn't support" them.</p>
+  </div>
+</div>
+
+<div class="step" style="border:1px solid #d9534f; background:#2a1414;">
+  <div class="num" style="background:#d9534f; color:#fff;">8</div>
+  <div class="body">
+    <h4 data-pt style="color:#ff9a9a;">🔴 Star Citizen — NÃO PULE: ative o Smooth Motion</h4>
+    <h4 data-en style="color:#ff9a9a;">🔴 Star Citizen — DON'T SKIP: enable Smooth Motion</h4>
+    <p data-pt><b>O Smooth Motion é o maior ganho de FPS no Star Citizen — mas só funciona se você fizer esta parte.</b> A maioria esquece! São 2 coisas: <b>(1)</b> ligar <b>Smooth Motion = On</b> no NVIDIA App, e <b>(2)</b> clicar no botão teal <span class="button-name" style="background:#0E8A8A;">3. 🎮 Smooth Motion (SC)</span> e seguir o guia do RTSS — senão dá <b>tela preta</b>. Passo a passo com fotos na seção <a href="#smooth-motion" style="color:#4dabff;">🎮 Star Citizen — DLSS 4.5</a> logo abaixo.</p>
+    <p data-en><b>Smooth Motion is the biggest FPS gain in Star Citizen — but it only works if you do this part.</b> Most people forget! Two things: <b>(1)</b> turn <b>Smooth Motion = On</b> in NVIDIA App, and <b>(2)</b> click the teal <span class="button-name" style="background:#0E8A8A;">3. 🎮 Smooth Motion (SC)</span> button and follow the RTSS guide — otherwise you get a <b>black screen</b>. Full walkthrough with screenshots in the <a href="#smooth-motion" style="color:#4dabff;">🎮 Star Citizen — DLSS 4.5</a> section just below.</p>
   </div>
 </div>
 
@@ -323,7 +342,7 @@
 <p data-en>Each game has a pinned DLSS runtime version. The app auto-fills with the highest version present in your file. Only change if you know what you're doing.</p>
 </details>
 
-<h2>🎮 Star Citizen — DLSS 4.5</h2>
+<h2 id="smooth-motion">🎮 Star Citizen — DLSS 4.5</h2>
 
 <div class="info">
   <span data-pt><b>Cenário atual:</b> A meta em 2026 é DLSS 4.5. Testes profundos da comunidade no Reddit/Spectrum.</span>
@@ -390,16 +409,38 @@ Performance = M
 <li data-en>⚙️ <b>Upscale Tech:</b> Transformer (don't use "Legacy")</li>
 <li data-pt>⚙️ <b>Smooth Motion:</b> ON — salva nas cidades de pouso (precisa de HAGS ativo + fix RTSS abaixo)</li>
 <li data-en>⚙️ <b>Smooth Motion:</b> ON — saves frames in landing cities (HAGS must be on + RTSS fix below)</li>
-<li data-pt>⚙️ <b>V-Sync:</b> OFF — +30 FPS deixando G-Sync do monitor agir</li>
-<li data-en>⚙️ <b>V-Sync:</b> OFF — +30 FPS by letting monitor G-Sync handle it</li>
+<li data-pt>⚙️ <b>V-Sync:</b> OFF — +30 FPS deixando o G-Sync do monitor agir</li>
+<li data-en>⚙️ <b>V-Sync:</b> OFF — +30 FPS by letting your monitor's G-Sync handle it</li>
 </ul>
+<p style="font-size:13px; color:#aaa;">
+  <span data-pt>💡 <b>HAGS</b> = Agendamento de GPU por Hardware (necessário pro Smooth Motion). Ative em <b>Configurações do Windows → Sistema → Vídeo → Gráficos → Configurações padrão → Agendamento de GPU acelerado por hardware = Ativado</b> e reinicie o PC.</span>
+  <span data-en>💡 <b>HAGS</b> = Hardware-Accelerated GPU Scheduling (required for Smooth Motion). Enable it in <b>Windows Settings → System → Display → Graphics → Default graphics settings → Hardware-accelerated GPU scheduling = On</b> and reboot.</span>
+</p>
 
-<h3 data-pt>🛠️ Fix Smooth Motion (Star Citizen) — botão <span class="button-name">🎮 Smooth Motion (SC)</span></h3>
-<h3 data-en>🛠️ Smooth Motion fix (Star Citizen) — <span class="button-name">🎮 Smooth Motion (SC)</span> button</h3>
+<h3 data-pt>🛠️ Fix Smooth Motion (Star Citizen) — botão <span class="button-name" style="background:#0E8A8A;">🎮 Smooth Motion (SC)</span></h3>
+<h3 data-en>🛠️ Smooth Motion fix (Star Citizen) — <span class="button-name" style="background:#0E8A8A;">🎮 Smooth Motion (SC)</span> button</h3>
+
+<div class="danger">
+  <span data-pt>🔴 <b>Esta é a parte mais esquecida — e a mais importante pro FPS no Star Citizen.</b> São 2 etapas: <b>①</b> ligar o Smooth Motion no NVIDIA App e <b>②</b> aplicar o fix do RTSS (senão dá tela preta).</span>
+  <span data-en>🔴 <b>This is the most-forgotten — and most important — part for FPS in Star Citizen.</b> Two stages: <b>①</b> turn Smooth Motion on in NVIDIA App and <b>②</b> apply the RTSS fix (otherwise you get a black screen).</span>
+</div>
+
+<h4 data-pt>① Ligue o Smooth Motion no NVIDIA App</h4>
+<h4 data-en>① Turn Smooth Motion on in NVIDIA App</h4>
+<p data-pt>Abra o <b>NVIDIA App → Graphics → Star Citizen</b> e ponha <b>Smooth Motion = On</b>. É isso que gera os quadros extras (mais FPS percebido). <b>Se ficar Off, não há ganho nenhum.</b></p>
+<p data-en>Open <b>NVIDIA App → Graphics → Star Citizen</b> and set <b>Smooth Motion = On</b>. This is what generates the extra frames (more perceived FPS). <b>If it stays Off, there's no gain at all.</b></p>
+<div class="screenshot">
+  <img src="smooth_motion_on.png" alt="NVIDIA App — Star Citizen — Smooth Motion = On">
+  <div class="caption" data-pt>NVIDIA App → Graphics → Star Citizen → <b>Smooth Motion = On</b> (a seta vermelha).</div>
+  <div class="caption" data-en>NVIDIA App → Graphics → Star Citizen → <b>Smooth Motion = On</b> (the red arrow).</div>
+</div>
+
+<h4 data-pt>② Tire a tela preta com o fix do RTSS — botão <span class="button-name" style="background:#0E8A8A;">🎮 Smooth Motion (SC)</span></h4>
+<h4 data-en>② Remove the black screen with the RTSS fix — <span class="button-name" style="background:#0E8A8A;">🎮 Smooth Motion (SC)</span> button</h4>
 
 <div data-pt>
 <p>O <b>Smooth Motion</b> da NVIDIA (frame interpolation no driver) <b>dá tela preta no Star Citizen</b> porque colide com o overlay padrão do RivaTuner Statistics Server (RTSS). O fix é fazer o RTSS usar <b>Microsoft Detours API hooking</b> no profile do StarCitizen.exe.</p>
-<p><b>Como o botão funciona (v2.6.4):</b> ele <b>abre o RTSS pra você</b> e mostra um <b>guia visual com 2 passos</b> dentro do nosso app. Você faz os cliques na interface do RTSS — o nosso app só te orienta. Como o RTSS é assinado por uma CA confiável, os antivírus não reclamam (diferente da versão anterior que tentava editar configs por baixo e disparava o Kaspersky).</p>
+<p><b>Como o botão funciona (v2.7.x):</b> ele <b>abre o RTSS pra você</b> e mostra um <b>guia visual com 2 passos</b> dentro do nosso app. Você faz os cliques na interface do RTSS — o nosso app só te orienta. Como o RTSS é assinado por uma CA confiável, os antivírus não reclamam (diferente da versão anterior que tentava editar configs por baixo e disparava o Kaspersky).</p>
 <p><b>Pré-requisito:</b> RTSS instalado. Se não tiver, o botão te oferece abrir a página de download (gratuito, ~18 MB, na <a href="https://www.guru3d.com/download/rtss-rivatuner-statistics-server-download/" style="color:#4dabff" target="_blank">Guru3D</a>). Não precisa do MSI Afterburner — só o <code>RTSSSetup737.exe</code>.</p>
 <h4>Passo 1 — Adicionar StarCitizen.exe (se ainda não estiver na lista)</h4>
 <p>Na lista da esquerda <i>Application profile properties</i>, procure <b>StarCitizen.exe</b>. Se não tiver, clique no botão verde <b>Add</b> e navegue até <code>...\StarCitizen\LIVE\Bin64\StarCitizen.exe</code>.</p>
@@ -409,11 +450,12 @@ Performance = M
 <p>Com <b>StarCitizen.exe</b> selecionado na lista, clique no botão azul <b>Setup</b> → aba <b>General</b> → role até <b>Injection properties</b> → marque ✅ <b>Use Microsoft Detours API hooking</b> → <b>OK</b>.</p>
 <img src="rtss_guide_detours.png" alt="Ativar Detours no Setup do RTSS" style="max-width:100%; border:1px solid #444; padding:4px; background:#1a1a1a;">
 <p>✅ <b>Pronto.</b> Smooth Motion vai funcionar sem tela preta. Pode fechar o RTSS — ele continua na bandeja.</p>
+<div class="info"><b>💡 Lembrete automático (v2.7.3):</b> quando você fechar o app depois de processar o arquivo, aparece um lembrete perguntando se o Smooth Motion já está ligado (com a foto do NVIDIA App). Botões: <b>Abrir o guia do Smooth Motion (RTSS)</b> — reabre este passo — ou <b>Já ativei — pode fechar</b>. Não ignore: é o app garantindo que você não esqueça a etapa mais importante pro FPS.</div>
 </div>
 
 <div data-en>
 <p>NVIDIA <b>Smooth Motion</b> (driver-side frame interpolation) <b>causes a black screen in Star Citizen</b> because it conflicts with the RivaTuner Statistics Server (RTSS) default overlay hook. The fix is to make RTSS use <b>Microsoft Detours API hooking</b> on the StarCitizen.exe profile.</p>
-<p><b>How the button works (v2.6.4):</b> it <b>opens RTSS for you</b> and shows a <b>visual 2-step guide</b> inside our app. You do the clicks in the RTSS UI — our app just walks you through. Since RTSS is signed by a trusted CA, antivirus doesn't complain (unlike the previous version which tried to edit configs under the hood and triggered Kaspersky).</p>
+<p><b>How the button works (v2.7.x):</b> it <b>opens RTSS for you</b> and shows a <b>visual 2-step guide</b> inside our app. You do the clicks in the RTSS UI — our app just walks you through. Since RTSS is signed by a trusted CA, antivirus doesn't complain (unlike the previous version which tried to edit configs under the hood and triggered Kaspersky).</p>
 <p><b>Prerequisite:</b> RTSS installed. If not, the button offers to open the download page (free, ~18 MB, from <a href="https://www.guru3d.com/download/rtss-rivatuner-statistics-server-download/" style="color:#4dabff" target="_blank">Guru3D</a>). You don't need MSI Afterburner — just <code>RTSSSetup737.exe</code>.</p>
 <h4>Step 1 — Add StarCitizen.exe (if not already in the list)</h4>
 <p>In the left list <i>Application profile properties</i>, look for <b>StarCitizen.exe</b>. If it's not there, click the green <b>Add</b> button and browse to <code>...\StarCitizen\LIVE\Bin64\StarCitizen.exe</code>.</p>
@@ -423,6 +465,7 @@ Performance = M
 <p>With <b>StarCitizen.exe</b> selected in the list, click the blue <b>Setup</b> button → <b>General</b> tab → scroll to <b>Injection properties</b> → check ✅ <b>Use Microsoft Detours API hooking</b> → <b>OK</b>.</p>
 <img src="rtss_guide_detours.png" alt="Enable Detours in RTSS Setup" style="max-width:100%; border:1px solid #444; padding:4px; background:#1a1a1a;">
 <p>✅ <b>Done.</b> Smooth Motion will work without the black screen. You can close RTSS — it stays in the system tray.</p>
+<div class="info"><b>💡 Automatic reminder (v2.7.3):</b> when you close the app after processing the file, a reminder pops up asking whether Smooth Motion is already On (with the NVIDIA App photo). Buttons: <b>Open the Smooth Motion guide (RTSS)</b> — reopens this step — or <b>Already enabled it — close</b>. Don't dismiss it blindly: it's the app making sure you don't forget the most important step for FPS.</div>
 </div>
 
 <h2>FAQ</h2>
@@ -453,7 +496,7 @@ Performance = M
 <div class="danger">
   <span data-pt><b>Deu errado e o NVIDIA App tá esquisito.</b><br>
   1. Abre DLSS Override+<br>
-  2. Clica <span class="button-name button-purple">Destravar</span><br>
+  2. Clica <span class="button-name button-purple">Destravar (Writable)</span><br>
   3. Clica <span class="button-name">Reverter do Backup</span><br>
   4. Reinicia o PC<br>
   Volta tudo ao original.</span>
@@ -525,7 +568,7 @@ Performance = M
 </section>
 
 <footer>
-  ITG • DLSS Override+ v2.6.4 • NVIDIA App 11.0.7.x<br>
+  ITG • DLSS Override+ v2.7.3 • NVIDIA App 11.0.7.x<br>
   <span data-pt>Em caso de dúvida, peça print do log pra quem te mandou o programa.</span>
   <span data-en>If in doubt, send a screenshot of the log to whoever shared the program.</span>
 </footer>

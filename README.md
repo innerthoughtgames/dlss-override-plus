@@ -23,7 +23,7 @@ multi-language UI, and a bunch of safety nets.
 [FAQ](#-faq) •
 [Support](#-support-the-project)
 
-<img src="screenshot_app.png" alt="DLSS Override+ v2.6.4" width="900">
+<img src="screenshot_app.png" alt="DLSS Override+ v2.7.3" width="900">
 
 </div>
 
@@ -31,21 +31,22 @@ multi-language UI, and a bunch of safety nets.
 
 ## ✨ Features
 
+- 🧭 **Guided 3-step flow** *(new in v2.7.3)* — A numbered "how to use" strip plus three big numbered buttons — green **1. Process File**, orange **2. Restart NVIDIA Services**, teal **3. Smooth Motion (SC)** — make the happy path obvious. The 8 technical keys and 5 extra options are tucked into collapsible *advanced* sections, hidden by default — beginners never see clutter, power users are one click away. Every button has a hover tooltip explaining what it does.
 - 🇧🇷 / 🇺🇸 **Bilingual UI** — Portuguese and English, switchable at runtime via flag buttons
 - ⚡ **DLSS 4 / DLSS 4.5 ready** — Unlocks Multi-Frame Generation (2x/3x/4x/6x), Transformer model, Ray Reconstruction
 - 🔒 **Patches both files** — `ApplicationStorage.json` *and* `fingerprint.db` (so new games stay unlocked too)
-- 🛡️ **Safe by default** — Hash-tracked backups, preview mode, read-only protection toggle, full revert
+- 🛡️ **Safe by default** — Hash-tracked backups, preview mode, read-only protection toggle, full revert; closing the app never reboots your PC
 - 📊 **System probe** — Auto-detects NVIDIA App version + GPU family, warns about hardware-locked features
 - 🎯 **Smart defaults** — Auto-fills Streamline SDK version from your existing JSON, no guessing
 - 🔧 **NPI reference panel** — Documented driver-side hex IDs for users who want hardcore control
-- 🎮 **Visual setup guide for Star Citizen Smooth Motion** *(reworked in v2.6.4)* — Opens RTSS and walks you through the 2 clicks needed (add `StarCitizen.exe` profile + enable Microsoft Detours API hooking) with annotated screenshots in a built-in popup. Zero registry/file writes by our app — RTSS does it, so no AV false-positives.
+- 🎮 **Visual setup guide for Star Citizen Smooth Motion** *(reworked in v2.6.4)* — Opens RTSS and walks you through the 2 clicks needed (add `StarCitizen.exe` profile + enable Microsoft Detours API hooking) with annotated screenshots in a built-in popup. Zero registry/file writes by our app — RTSS does it, so no AV false-positives. *(v2.7.3)* After you process the file, closing the app shows a friendly reminder to enable Smooth Motion (the most-forgotten, highest-impact step), with a one-click shortcut to the guide.
 - 📖 **Embedded HTML tutorial** — Click 📖 Tutorial to open the full bilingual guide in your browser; no external files needed
 - ☕ **Bundled donation widget** — Inline PIX QR + crypto + PayPal buttons (no obnoxious popups)
 
 ## 🚀 Quick Start
 
 ```
-1. Download dlss_override_plus_v2.6.4.exe from Releases
+1. Download dlss_override_plus_v2.7.3.exe from Releases
 2. Double-click to open
 3. Click "Process File"  →  Click "Restart NVIDIA Services"
 ```
@@ -75,7 +76,7 @@ Without that mirror, NVIDIA App would re-apply defaults on every newly fingerpri
 <details>
 <summary><b>Click to expand</b> — Portuguese UI / English UI</summary>
 
-<img src="screenshot_app.png" alt="DLSS Override+ v2.6.4 main window" width="900">
+<img src="screenshot_app.png" alt="DLSS Override+ v2.7.3 main window" width="900">
 
 Flag toggle buttons at the top right switch the entire UI — labels, tooltips, status bar, and log messages — instantly.
 The donation sidebar (right) shows an embedded PIX QR code and one-click copy buttons for PIX, crypto, and PayPal.
@@ -186,7 +187,7 @@ What it actually does is described above (and in the open source code in this re
 - **Verify on VirusTotal** before running — upload the `.exe` and check the scan results
   yourself at https://www.virustotal.com/. The source code is also in this repo for anyone
   to audit.
-- **Run from source** — clone the repo and run `python dlss_override_plus_v2.6.4.py` (requires
+- **Run from source** — clone the repo and run `python dlss_override_plus_v2.7.3.py` (requires
   Python 3.10+ and `pip install PyQt6 qrcode[pil]`). This skips PyInstaller entirely.
 - **Build your own .exe** — instructions below in the "Building from source" section.
 - **Add an exception** in Windows Defender if you trust the scan.
@@ -223,7 +224,7 @@ python "DLSS Override+.py"
 
 # Or build a .exe
 python -m PyInstaller --clean --noconfirm DLSS_Override_Editor.spec
-# Output: dist/dlss_override_plus_v2.6.4.exe
+# Output: dist/dlss_override_plus_v2.7.3.exe
 ```
 
 ## 🏗️ How it works

@@ -7,8 +7,8 @@
 
 VSVersionInfo(
   ffi=FixedFileInfo(
-    filevers=(2, 6, 4, 0),
-    prodvers=(2, 6, 4, 0),
+    filevers=(2, 7, 3, 0),
+    prodvers=(2, 7, 3, 0),
     mask=0x3f,
     flags=0x0,
     OS=0x40004,        # VOS_NT_WINDOWS32
@@ -24,12 +24,12 @@ VSVersionInfo(
           [
             StringStruct('CompanyName',      'Inner Thought Games (ITG)'),
             StringStruct('FileDescription',  'DLSS Override+ — NVIDIA App enhancer for forcing DLSS 4 / Multi-Frame Generation in any game'),
-            StringStruct('FileVersion',      '2.6.4.0'),
+            StringStruct('FileVersion',      '2.7.3.0'),
             StringStruct('InternalName',     'dlss_override_plus'),
             StringStruct('LegalCopyright',   'Copyright (c) 2026 Inner Thought Games. Based on DLSS Override For All Games by Kaan Aldemir, MIT License.'),
-            StringStruct('OriginalFilename', 'dlss_override_plus_v2.6.4.exe'),
+            StringStruct('OriginalFilename', 'dlss_override_plus_v2.7.3.exe'),
             StringStruct('ProductName',      'DLSS Override+'),
-            StringStruct('ProductVersion',   '2.6.4.0'),
+            StringStruct('ProductVersion',   '2.7.3.0'),
             StringStruct('Comments',         'Open source, MIT License. https://github.com/innerthoughtgames/dlss-override-plus')
           ]
         )
